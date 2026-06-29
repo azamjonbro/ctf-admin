@@ -605,19 +605,7 @@
                   </div>
                 </div>
 
-                <!-- Attachment file upload hook -->
-                <div class="space-y-1 pt-1">
-                  <label class="text-[9px] uppercase font-mono text-slate-500">Question Attachment File</label>
-                  <div class="flex items-center gap-2">
-                    <input type="file" @change="onQuestionAttachmentUpload($event, qIndex)" class="hidden" :ref="el => { if(el) questionFileInputRefs[qIndex] = el }" />
-                    <button type="button" @click="questionFileInputRefs[qIndex]?.click()" class="px-2.5 py-1 bg-[#0B1020] border border-white/10 rounded text-[9px] uppercase text-slate-300 font-mono">
-                      Upload Resource File
-                    </button>
-                    <span class="text-[9px] text-slate-500 truncate max-w-[200px]" v-if="q.attachmentsString">
-                      {{ q.attachmentsString.split('/').pop() }}
-                    </span>
-                  </div>
-                </div>
+                <!-- Attachment file upload hook removed -->
               </div>
             </div>
           </div>
@@ -1095,7 +1083,6 @@ const showModal = ref(false);
 const isEditing = ref(false);
 const editingChallengeId = ref(null);
 const editor = ref(null);
-const questionFileInputRefs = ref([]);
 
 const form = ref({
   title: '',
@@ -1215,28 +1202,6 @@ const removeFlagNode = (index) => {
     return;
   }
   form.value.flags.splice(index, 1);
-};
-
-// Upload question resource attachment
-const onQuestionAttachmentUpload = async (event, qIndex) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    toast.info('Uploading resource file...');
-    const res = await api.post('/ctfs/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    form.value.questions[qIndex].attachmentsString = res.data.data.url;
-    toast.success('Resource file uploaded successfully!');
-  } catch (error) {
-    toast.error(error?.error?.message || 'Resource upload failed');
-  }
 };
 
 const submitChallenge = async () => {
