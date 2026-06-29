@@ -479,8 +479,27 @@
               <input v-model.number="form.timerMinutes" type="number" min="1" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" required />
             </div>
             <div class="space-y-1">
-              <label class="text-[10px] uppercase font-mono text-slate-500">Challenge Image URL</label>
-              <input v-model="form.image" type="text" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" placeholder="/uploads/default-challenge.png" />
+              <label class="text-[10px] uppercase font-mono text-slate-500">Challenge Image</label>
+              <div
+                @dragover.prevent="dragOverImage = true"
+                @dragleave.prevent="dragOverImage = false"
+                @drop.prevent="onChallengeImageDrop"
+                @click="challengeImageInput.click()"
+                class="w-full h-24 border border-dashed rounded flex flex-col items-center justify-center cursor-pointer transition relative overflow-hidden group"
+                :class="dragOverImage ? 'border-cyber-primary bg-cyber-primary/5' : 'border-white/10 bg-[#0B1020]/50 hover:border-cyber-primary/55'"
+              >
+                <input type="file" ref="challengeImageInput" @change="onChallengeImageUpload" accept="image/*" class="hidden" />
+                
+                <div v-if="form.image" class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <span class="text-[10px] font-mono text-cyber-primary font-bold">CLICK OR DROP TO CHANGE</span>
+                </div>
+                
+                <img v-if="form.image" :src="form.image.startsWith('http') ? form.image : (form.image.startsWith('/') ? form.image : '/' + form.image)" class="w-full h-full object-cover" />
+                <div v-else class="text-center font-mono text-[10px] text-slate-500 p-2">
+                  <span class="text-2xl block mb-1">🖼️</span>
+                  <span>DRAG & DROP IMAGE OR CLICK</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -861,6 +880,9 @@ const apexchart = VueApexCharts;
 
 // Sidebar navigation control variable
 const activeSection = ref('dashboard');
+
+const dragOverImage = ref(false);
+const challengeImageInput = ref(null);
 
 // 1. AUTHENTICATION & LOGIN LOGIC
 const isAuthenticated = ref(!!localStorage.getItem('adminToken'));
@@ -1422,6 +1444,42 @@ const onHackathonCoverUpload = async (event) => {
     toast.success('Banner uploaded successfully!');
   } catch (error) {
     toast.error(error?.error?.message || 'Banner upload failed');
+  }
+};
+
+// Upload Challenge Image via drag-and-drop or click selector
+const uploadChallengeImageFile = async (file) => {
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    toast.info('Uploading challenge image...');
+    const res = await api.post('/ctfs/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    form.value.image = res.data.data.url;
+    toast.success('Image uploaded successfully!');
+  } catch (error) {
+    toast.error(error?.error?.message || 'Image upload failed');
+  }
+};
+
+const onChallengeImageUpload = (event) => {
+  const file = event.target.files[0];
+  uploadChallengeImageFile(file);
+};
+
+const onChallengeImageDrop = (event) => {
+  dragOverImage.value = false;
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    uploadChallengeImageFile(file);
+  } else {
+    toast.error('Only image files are allowed');
   }
 };
 
