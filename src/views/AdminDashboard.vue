@@ -262,7 +262,6 @@
                 <thead>
                   <tr class="border-b border-white/10 text-slate-400">
                     <th class="py-3 px-4">Name</th>
-                    <th class="py-3 px-4">Registration Window</th>
                     <th class="py-3 px-4">Execution Window</th>
                     <th class="py-3 px-4">Max Teams</th>
                     <th class="py-3 px-4">Challenges</th>
@@ -273,9 +272,6 @@
                 <tbody class="divide-y divide-white/5">
                   <tr v-for="h in hackathons" :key="h._id" class="hover:bg-white/5 transition">
                     <td class="py-3 px-4 font-bold text-white">{{ h.name }}</td>
-                    <td class="py-3 px-4 text-slate-400">
-                      {{ new Date(h.registrationStart).toLocaleDateString() }} - {{ new Date(h.registrationEnd).toLocaleDateString() }}
-                    </td>
                     <td class="py-3 px-4 text-slate-300">
                       {{ new Date(h.hackathonStart).toLocaleDateString() }} - {{ new Date(h.hackathonEnd).toLocaleDateString() }}
                     </td>
@@ -501,6 +497,23 @@
                 </div>
               </div>
             </div>
+            
+            <div class="space-y-2 md:col-span-2">
+              <label class="text-[10px] uppercase font-mono text-slate-500 block">Challenge Files / Attachments</label>
+              <div class="flex items-center gap-3">
+                <input type="file" ref="challengeAttachmentInput" @change="onChallengeAttachmentUpload" class="hidden" />
+                <button type="button" @click="challengeAttachmentInput?.click()" class="px-3 py-1.5 bg-[#131C35] hover:bg-[#1f2a4e] border border-white/10 rounded text-[10px] uppercase text-slate-300 font-mono transition">
+                  📎 Upload File
+                </button>
+                <span class="text-[10px] text-slate-500">Attach binary resources, code files, or archives for this challenge.</span>
+              </div>
+              <div v-if="form.attachments && form.attachments.length > 0" class="mt-2 space-y-1">
+                <div v-for="(fileUrl, fIdx) in form.attachments" :key="fIdx" class="flex items-center justify-between bg-[#131C35] border border-white/5 px-3 py-1.5 rounded text-xs">
+                  <a :href="fileUrl" target="_blank" class="text-cyber-secondary font-mono hover:underline truncate max-w-[80%]">{{ fileUrl.split('/').pop() }}</a>
+                  <button type="button" @click="removeChallengeAttachment(fIdx)" class="text-red-500 hover:text-red-400 font-mono text-[10px] uppercase bg-red-500/10 px-2 py-0.5 rounded border border-red-500/10">Remove</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="space-y-1">
@@ -576,22 +589,9 @@
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div class="space-y-1 md:col-span-2">
-                    <label class="text-[9px] uppercase font-mono text-slate-500">Question Description</label>
-                    <input v-model="q.description" type="text" class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" placeholder="Instructions for users..." required />
-                  </div>
-                  <div class="space-y-1">
-                    <label class="text-[9px] uppercase font-mono text-slate-500">Input Type</label>
-                    <select v-model="q.type" class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200">
-                      <option value="text">Text (Flag)</option>
-                      <option value="url">URL Target</option>
-                      <option value="image">Image Attachment</option>
-                      <option value="video">Video Resource</option>
-                      <option value="audio">Audio Resource</option>
-                      <option value="file">File Resource</option>
-                    </select>
-                  </div>
+                <div class="space-y-1">
+                  <label class="text-[9px] uppercase font-mono text-slate-500">Question Description</label>
+                  <input v-model="q.description" type="text" class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" placeholder="Instructions for users..." required />
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -644,14 +644,6 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-1">
-              <label class="text-[10px] uppercase font-mono text-slate-500">Registration Start Date</label>
-              <input v-model="hackathonForm.registrationStart" type="datetime-local" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" required />
-            </div>
-            <div class="space-y-1">
-              <label class="text-[10px] uppercase font-mono text-slate-500">Registration End Date</label>
-              <input v-model="hackathonForm.registrationEnd" type="datetime-local" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" required />
-            </div>
-            <div class="space-y-1">
               <label class="text-[10px] uppercase font-mono text-slate-500">Hackathon Run Start Date</label>
               <input v-model="hackathonForm.hackathonStart" type="datetime-local" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" required />
             </div>
@@ -684,9 +676,10 @@
             <div class="space-y-1">
               <label class="text-[10px] uppercase font-mono text-slate-500">Hackathon Status</label>
               <select v-model="hackathonForm.status" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200">
-                <option value="upcoming">Upcoming</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+                <option value="running">Running</option>
+                <option value="finished">Finished</option>
               </select>
             </div>
           </div>
@@ -695,13 +688,13 @@
           <div class="space-y-2">
             <label class="text-[10px] uppercase font-mono text-slate-500 block">Select challenges to bind to this Hackathon</label>
             <div class="max-h-[150px] overflow-y-auto border border-white/10 rounded p-3 bg-[#131C35]/50 space-y-2">
-              <div v-for="c in challenges" :key="c._id" class="flex items-center space-x-2">
+              <div v-for="c in selectableChallenges" :key="c._id" class="flex items-center space-x-2">
                 <input type="checkbox" :id="c._id" :value="c._id" v-model="hackathonForm.challenges" class="rounded bg-[#0B1020] border-white/10 text-cyber-secondary focus:ring-cyber-secondary" />
                 <label :for="c._id" class="text-xs text-slate-300 cursor-pointer">
                   {{ c.title }} ({{ c.category }} - {{ c.difficulty }})
                 </label>
               </div>
-              <div v-if="challenges.length === 0" class="text-center py-2 text-slate-500 text-[10px]">
+              <div v-if="selectableChallenges.length === 0" class="text-center py-2 text-slate-500 text-[10px]">
                 No challenges available to bind.
               </div>
             </div>
@@ -1083,6 +1076,7 @@ const showModal = ref(false);
 const isEditing = ref(false);
 const editingChallengeId = ref(null);
 const editor = ref(null);
+const challengeAttachmentInput = ref(null);
 
 const form = ref({
   title: '',
@@ -1092,6 +1086,7 @@ const form = ref({
   stars: 1,
   timerMinutes: 60,
   image: '',
+  attachments: [],
   flags: [''],
   questions: []
 });
@@ -1107,6 +1102,7 @@ const openCreateModal = () => {
     stars: 1,
     timerMinutes: 60,
     image: '',
+    attachments: [],
     flags: [''],
     questions: []
   };
@@ -1127,10 +1123,8 @@ const openEditModal = (ctf) => {
     title: q.title,
     description: q.description,
     points: q.points || q.score || 100,
-    type: q.type || 'text',
     answer: q.answer || '',
-    hint: q.hint || '',
-    attachmentsString: q.attachments && q.attachments.length > 0 ? q.attachments[0] : ''
+    hint: q.hint || ''
   }));
 
   form.value = {
@@ -1141,6 +1135,7 @@ const openEditModal = (ctf) => {
     stars: ctf.stars,
     timerMinutes: ctf.timerMinutes || 60,
     image: ctf.image || '',
+    attachments: ctf.attachments && ctf.attachments.length > 0 ? [...ctf.attachments] : [],
     flags: ctf.flags && ctf.flags.length > 0 ? [...ctf.flags] : [''],
     questions: mappedQuestions
   };
@@ -1177,10 +1172,8 @@ const addQuestionNode = () => {
     title: '',
     description: '',
     points: 100,
-    type: 'text',
     answer: '',
-    hint: '',
-    attachmentsString: ''
+    hint: ''
   });
 };
 
@@ -1227,10 +1220,8 @@ const submitChallenge = async () => {
       title: q.title,
       description: q.description,
       points: q.points,
-      attachments: q.attachmentsString ? [q.attachmentsString] : [],
       answer: q.answer,
-      hint: q.hint || '',
-      type: q.type || 'text'
+      hint: q.hint || ''
     };
   });
 
@@ -1243,6 +1234,7 @@ const submitChallenge = async () => {
     category: form.value.category,
     timerMinutes: form.value.timerMinutes,
     image: form.value.image,
+    attachments: form.value.attachments || [],
     flags: form.value.flags.map(f => f.trim()),
     questions: formattedQuestions
   };
@@ -1270,33 +1262,41 @@ const showHackathonModal = ref(false);
 const editingHackathonId = ref('');
 const hackathonLoading = ref(false);
 const hackathonCoverInput = ref(null);
+const selectableChallenges = ref([]);
+
 const hackathonForm = ref({
   name: '',
   description: '',
-  registrationStart: '',
-  registrationEnd: '',
   hackathonStart: '',
   hackathonEnd: '',
   maxTeams: 50,
   coverImage: '',
   challenges: [],
-  status: 'upcoming'
+  status: 'open'
 });
 
-const openHackathonModal = () => {
+const loadSelectableChallenges = async (hackathonId = 'new') => {
+  try {
+    const res = await api.get(`/ctfs?availableForHackathon=${hackathonId}`);
+    selectableChallenges.value = res.data.data;
+  } catch (err) {
+    toast.error('Failed to fetch selectable challenges.');
+  }
+};
+
+const openHackathonModal = async () => {
   editingHackathonId.value = '';
   hackathonForm.value = {
     name: '',
     description: '',
-    registrationStart: '',
-    registrationEnd: '',
     hackathonStart: '',
     hackathonEnd: '',
     maxTeams: 50,
     coverImage: '',
     challenges: [],
-    status: 'upcoming'
+    status: 'open'
   };
+  await loadSelectableChallenges('new');
   showHackathonModal.value = true;
 };
 
@@ -1315,20 +1315,19 @@ const formatDateForInput = (dateString) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-const editHackathon = (h) => {
+const editHackathon = async (h) => {
   editingHackathonId.value = h._id;
   hackathonForm.value = {
     name: h.name,
     description: h.description,
-    registrationStart: formatDateForInput(h.registrationStart),
-    registrationEnd: formatDateForInput(h.registrationEnd),
     hackathonStart: formatDateForInput(h.hackathonStart),
     hackathonEnd: formatDateForInput(h.hackathonEnd),
     maxTeams: h.maxTeams,
     coverImage: h.coverImage || '',
     challenges: h.challenges || [],
-    status: h.status || 'upcoming'
+    status: h.status || 'open'
   };
+  await loadSelectableChallenges(h._id);
   showHackathonModal.value = true;
 };
 
@@ -1438,6 +1437,34 @@ const onChallengeImageUpload = (event) => {
   uploadChallengeImageFile(file);
 };
 
+const onChallengeAttachmentUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    toast.info('Uploading file...');
+    const res = await api.post('/ctfs/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    if (!form.value.attachments) {
+      form.value.attachments = [];
+    }
+    form.value.attachments.push(res.data.data.url);
+    toast.success('File uploaded successfully!');
+  } catch (error) {
+    toast.error(error?.error?.message || 'File upload failed');
+  }
+};
+
+const removeChallengeAttachment = (index) => {
+  form.value.attachments.splice(index, 1);
+};
+
 const onChallengeImageDrop = (event) => {
   dragOverImage.value = false;
   const file = event.dataTransfer.files[0];
@@ -1454,8 +1481,6 @@ const submitHackathon = async () => {
     const payload = {
       name: hackathonForm.value.name,
       description: hackathonForm.value.description,
-      registrationStart: new Date(hackathonForm.value.registrationStart).toISOString(),
-      registrationEnd: new Date(hackathonForm.value.registrationEnd).toISOString(),
       hackathonStart: new Date(hackathonForm.value.hackathonStart).toISOString(),
       hackathonEnd: new Date(hackathonForm.value.hackathonEnd).toISOString(),
       maxTeams: hackathonForm.value.maxTeams,
