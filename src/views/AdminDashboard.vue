@@ -533,6 +533,11 @@
             </div>
           </div>
 
+          <div class="space-y-1">
+            <label class="text-[10px] uppercase font-mono text-slate-500">Challenge Hint (Optional)</label>
+            <input v-model="form.hint" type="text" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200" placeholder="e.g. Inspect response headers or try standard SQL inject payload..." />
+          </div>
+
           <!-- Challenge Flags Section -->
           <div class="border-t border-white/10 pt-4 space-y-4">
             <div class="flex justify-between items-center">
@@ -1087,6 +1092,7 @@ const form = ref({
   timerMinutes: 60,
   image: '',
   attachments: [],
+  hint: '',
   flags: [''],
   questions: []
 });
@@ -1103,6 +1109,7 @@ const openCreateModal = () => {
     timerMinutes: 60,
     image: '',
     attachments: [],
+    hint: '',
     flags: [''],
     questions: []
   };
@@ -1136,6 +1143,7 @@ const openEditModal = (ctf) => {
     timerMinutes: ctf.timerMinutes || 60,
     image: ctf.image || '',
     attachments: ctf.attachments && ctf.attachments.length > 0 ? [...ctf.attachments] : [],
+    hint: ctf.hint || '',
     flags: ctf.flags && ctf.flags.length > 0 ? [...ctf.flags] : [''],
     questions: mappedQuestions
   };
@@ -1235,6 +1243,7 @@ const submitChallenge = async () => {
     timerMinutes: form.value.timerMinutes,
     image: form.value.image,
     attachments: form.value.attachments || [],
+    hint: form.value.hint || '',
     flags: form.value.flags.map(f => f.trim()),
     questions: formattedQuestions
   };
