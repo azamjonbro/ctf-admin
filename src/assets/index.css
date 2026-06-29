@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #0B1020;
+    color: #E2E8F0;
+    font-family: 'Inter', 'Outfit', sans-serif;
+  }
+}
+
+.glass-panel {
+  background: rgba(19, 28, 53, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
