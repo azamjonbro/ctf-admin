@@ -36,6 +36,28 @@
             />
           </div>
 
+          <!-- Mathematical Captcha -->
+          <div class="space-y-1">
+            <label class="text-xs uppercase font-mono tracking-wider text-slate-400 block">Matematik captcha: <span class="text-cyber-primary font-bold">{{ loginCaptchaQuestion }}</span></label>
+            <div class="flex gap-2">
+              <input
+                v-model="loginForm.captchaAnswer"
+                type="text"
+                placeholder="Javobingiz"
+                class="flex-1 bg-[#0B1020] border border-white/10 rounded px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyber-primary font-mono"
+                required
+              />
+              <button
+                type="button"
+                @click="loadLoginCaptcha"
+                class="px-3 bg-slate-800 border border-white/10 rounded text-slate-300 hover:bg-slate-700 transition text-xs font-mono"
+                title="Yangilash"
+              >
+                🔄
+              </button>
+            </div>
+          </div>
+
           <button
             type="submit"
             :disabled="loginLoading"
@@ -874,7 +896,20 @@ const challengeImageInput = ref(null);
 const isAuthenticated = ref(!!localStorage.getItem('adminToken'));
 const adminUser = ref(JSON.parse(localStorage.getItem('adminUser') || 'null'));
 const loginLoading = ref(false);
-const loginForm = ref({ usernameOrEmail: '', password: '' });
+const loginForm = ref({ usernameOrEmail: '', password: '', captchaAnswer: '' });
+
+const loginCaptchaQuestion = ref('');
+const loginCaptchaId = ref('');
+
+const loadLoginCaptcha = async () => {
+  try {
+    const res = await api.get('/auth/captcha');
+    loginCaptchaId.value = res.data.data.captchaId;
+    loginCaptchaQuestion.value = res.data.data.question;
+  } catch (error) {
+    toast.error('Failed to load validation captcha');
+  }
+};
 
 const handleLogin = async () => {
   loginLoading.value = true;
@@ -882,6 +917,8 @@ const handleLogin = async () => {
     const res = await api.post('/auth/login', {
       usernameOrEmail: loginForm.value.usernameOrEmail,
       password: loginForm.value.password,
+      captchaId: loginCaptchaId.value,
+      captchaAnswer: loginForm.value.captchaAnswer,
       deviceName: 'Admin Dashboard Client'
     });
     
@@ -898,6 +935,8 @@ const handleLogin = async () => {
     toast.success(`Secure link established. Welcome, ${user.username}!`);
     loadAllData();
   } catch (error) {
+    loginForm.value.captchaAnswer = '';
+    loadLoginCaptcha();
     const errorMsg = error?.error?.message || 'Invalid validation credentials';
     toast.error(errorMsg);
   } finally {
@@ -911,6 +950,7 @@ const handleLogout = () => {
   adminUser.value = null;
   isAuthenticated.value = false;
   toast.info('Secure link terminated.');
+  loadLoginCaptcha();
 };
 
 // 2. DASHBOARD DATA STATES
@@ -1557,7 +1597,11 @@ const adjustRateLimit = (delta) => {
 };
 
 onMounted(() => {
-  loadAllData();
+  if (!isAuthenticated.value) {
+    loadLoginCaptcha();
+  } else {
+    loadAllData();
+  }
 });
 
 onBeforeUnmount(() => {
