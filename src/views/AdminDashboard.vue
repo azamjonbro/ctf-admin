@@ -703,9 +703,8 @@
             <div class="space-y-1">
               <label class="text-[10px] uppercase font-mono text-slate-500">Hackathon Status</label>
               <select v-model="hackathonForm.status" class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200">
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
-                <option value="running">Running</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="active">Active</option>
                 <option value="finished">Finished</option>
               </select>
             </div>
