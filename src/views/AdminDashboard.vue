@@ -488,12 +488,16 @@
                       {{ h.challenges?.length || 0 }} Units
                     </td>
                     <td class="py-3 px-4">
-                      <span
-                        class="px-2 py-0.5 rounded font-bold uppercase"
+                      <select
+                        :value="h.status"
+                        @change="handleHackathonStatusChange(h, $event.target.value)"
+                        class="bg-[#0B1020] border border-white/15 rounded text-[10px] px-1.5 py-0.5 focus:outline-none font-bold uppercase cursor-pointer"
                         :class="getHackathonStatusClass(h.status)"
                       >
-                        {{ h.status }}
-                      </span>
+                        <option value="upcoming" class="bg-[#0B1020] text-cyber-secondary font-bold uppercase">Upcoming (Draft)</option>
+                        <option value="active" class="bg-[#0B1020] text-cyber-primary font-bold uppercase">Active (Open)</option>
+                        <option value="finished" class="bg-[#0B1020] text-slate-400 font-bold uppercase">Finished (Close)</option>
+                      </select>
                     </td>
                     <td
                       class="py-3 px-4 text-right flex items-center justify-end gap-2"
@@ -1080,30 +1084,46 @@
               </button>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-3">
               <div
                 v-for="(flag, fIndex) in form.flags"
                 :key="fIndex"
-                class="flex items-center space-x-2"
+                class="p-3 rounded border border-white/5 bg-[#131C35]/30 space-y-2"
               >
-                <span class="text-[10px] font-mono text-slate-500 min-w-[50px]"
-                  >Flag #{{ fIndex + 1 }}</span
-                >
-                <input
-                  v-model="form.flags[fIndex]"
-                  type="text"
-                  class="flex-1 bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
-                  placeholder="FLAG{cyber_sec_flag_value}"
-                  required
-                />
-                <button
-                  v-if="form.flags.length > 1"
-                  type="button"
-                  @click="removeFlagNode(fIndex)"
-                  class="px-2.5 py-1 text-red-500 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded font-mono text-[10px] font-bold uppercase transition"
-                >
-                  Remove
-                </button>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-mono text-cyber-accent font-bold"
+                    >Flag #{{ fIndex + 1 }}</span
+                  >
+                  <button
+                    v-if="form.flags.length > 1"
+                    type="button"
+                    @click="removeFlagNode(fIndex)"
+                    class="text-red-500 hover:text-red-400 font-mono text-[9px] uppercase"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div class="md:col-span-3 space-y-1">
+                    <label class="text-[9px] uppercase font-mono text-slate-500">Flag Pattern</label>
+                    <input
+                      v-model="form.flags[fIndex].flag"
+                      type="text"
+                      class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                      placeholder="FLAG{cyber_sec_flag_value}"
+                      required
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[9px] uppercase font-mono text-slate-500">Points</label>
+                    <input
+                      v-model.number="form.flags[fIndex].points"
+                      type="number"
+                      class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1927,6 +1947,30 @@ const handleStatusChange = async (challengeId, newStatus) => {
   }
 };
 
+const handleHackathonStatusChange = async (h, newStatus) => {
+  try {
+    toast.info("Xakaton holati yangilanmoqda...");
+    const payload = {
+      name: h.name,
+      description: h.description,
+      hackathonStart: new Date(h.hackathonStart).toISOString(),
+      hackathonEnd: new Date(h.hackathonEnd).toISOString(),
+      maxTeams: h.maxTeams,
+      coverImage: h.coverImage || "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800",
+      banner: h.banner || "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800",
+      challenges: (h.challenges || []).map(c => typeof c === 'object' && c._id ? c._id : c),
+      status: newStatus
+    };
+    await api.put(`/admin/hackathons/${h._id}`, payload);
+    toast.success(`Xakaton holati "${newStatus}" ga muvaffaqiyatli o'zgartirildi!`);
+    loadHackathons();
+    loadStats();
+    loadAuditLogs();
+  } catch (err) {
+    toast.error(err?.error?.message || "Xakaton holatini yangilashda xatolik.");
+  }
+};
+
 const handleDelete = async (challengeId) => {
   if (!confirm("Are you sure you want to terminate this challenge node?"))
     return;
@@ -1958,7 +2002,7 @@ const form = ref({
   image: "",
   attachments: [],
   hint: "",
-  flags: [""],
+  flags: [{ flag: "", points: 100 }],
   questions: [],
 });
 
@@ -1975,7 +2019,7 @@ const openCreateModal = () => {
     image: "",
     attachments: [],
     hint: "",
-    flags: [""],
+    flags: [{ flag: "", points: 100 }],
     questions: [],
   };
 
@@ -1994,10 +2038,23 @@ const openEditModal = (ctf) => {
   const mappedQuestions = (ctf.questions || []).map((q) => ({
     title: q.title,
     description: q.description,
-    points: q.points || q.score || 100,
+    points: q.points || q.score || 10,
     answer: q.answer || "",
     hint: q.hint || "",
   }));
+
+  const mappedFlags = (ctf.flags || []).map((f) => {
+    if (typeof f === 'object' && f !== null) {
+      return {
+        flag: f.flag || "",
+        points: f.points !== undefined ? f.points : 100
+      };
+    }
+    return {
+      flag: f || "",
+      points: 100
+    };
+  });
 
   form.value = {
     title: ctf.title,
@@ -2010,7 +2067,7 @@ const openEditModal = (ctf) => {
     attachments:
       ctf.attachments && ctf.attachments.length > 0 ? [...ctf.attachments] : [],
     hint: ctf.hint || "",
-    flags: ctf.flags && ctf.flags.length > 0 ? [...ctf.flags] : [""],
+    flags: mappedFlags.length > 0 ? mappedFlags : [{ flag: "", points: 100 }],
     questions: mappedQuestions,
   };
 
@@ -2046,7 +2103,7 @@ const addQuestionNode = () => {
   form.value.questions.push({
     title: "",
     description: "",
-    points: 100,
+    points: 10,
     answer: "",
     hint: "",
   });
@@ -2061,7 +2118,7 @@ const addFlagNode = () => {
     toast.warning("Maximum 3 flags permitted per challenge.");
     return;
   }
-  form.value.flags.push("");
+  form.value.flags.push({ flag: "", points: 100 });
 };
 
 const removeFlagNode = (index) => {
@@ -2087,7 +2144,7 @@ const submitChallenge = async () => {
     return;
   }
 
-  if (form.value.flags.some((f) => !f.trim())) {
+  if (form.value.flags.some((f) => !f.flag || !f.flag.trim())) {
     toast.error("Validation Error: Flags cannot be empty.");
     return;
   }
@@ -2115,7 +2172,10 @@ const submitChallenge = async () => {
     image: form.value.image,
     attachments: form.value.attachments || [],
     hint: form.value.hint || "",
-    flags: form.value.flags.map((f) => f.trim()),
+    flags: form.value.flags.map((f) => ({
+      flag: f.flag.trim(),
+      points: f.points !== undefined ? f.points : 100
+    })),
     questions: formattedQuestions,
   };
 
