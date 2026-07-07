@@ -490,13 +490,30 @@
                     <td class="py-3 px-4">
                       <select
                         :value="h.status"
-                        @change="handleHackathonStatusChange(h, $event.target.value)"
+                        @change="
+                          handleHackathonStatusChange(h, $event.target.value)
+                        "
                         class="bg-[#0B1020] border border-white/15 rounded text-[10px] px-1.5 py-0.5 focus:outline-none font-bold uppercase cursor-pointer"
                         :class="getHackathonStatusClass(h.status)"
                       >
-                        <option value="upcoming" class="bg-[#0B1020] text-cyber-secondary font-bold uppercase">Upcoming (Draft)</option>
-                        <option value="active" class="bg-[#0B1020] text-cyber-primary font-bold uppercase">Active (Open)</option>
-                        <option value="finished" class="bg-[#0B1020] text-slate-400 font-bold uppercase">Finished (Close)</option>
+                        <option
+                          value="upcoming"
+                          class="bg-[#0B1020] text-cyber-secondary font-bold uppercase"
+                        >
+                          Upcoming (Draft)
+                        </option>
+                        <option
+                          value="active"
+                          class="bg-[#0B1020] text-cyber-primary font-bold uppercase"
+                        >
+                          Active (Open)
+                        </option>
+                        <option
+                          value="finished"
+                          class="bg-[#0B1020] text-slate-400 font-bold uppercase"
+                        >
+                          Finished (Close)
+                        </option>
                       </select>
                     </td>
                     <td
@@ -785,7 +802,9 @@
                 <span class="text-[10px] text-slate-500 block uppercase"
                   >PORT CONFIG</span
                 >
-                <span class="font-bold text-cyber-secondary">5001</span>
+                <span class="font-bold text-cyber-secondary"
+                  >ctf.techinfo.uz</span
+                >
               </div>
               <div class="p-3 rounded bg-[#131C35] space-y-1">
                 <span class="text-[10px] text-slate-500 block uppercase"
@@ -1091,7 +1110,8 @@
                 class="p-3 rounded border border-white/5 bg-[#131C35]/30 space-y-2"
               >
                 <div class="flex justify-between items-center">
-                  <span class="text-[10px] font-mono text-cyber-accent font-bold"
+                  <span
+                    class="text-[10px] font-mono text-cyber-accent font-bold"
                     >Flag #{{ fIndex + 1 }}</span
                   >
                   <button
@@ -1105,7 +1125,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div class="md:col-span-3 space-y-1">
-                    <label class="text-[9px] uppercase font-mono text-slate-500">Flag Pattern</label>
+                    <label class="text-[9px] uppercase font-mono text-slate-500"
+                      >Flag Pattern</label
+                    >
                     <input
                       v-model="form.flags[fIndex].flag"
                       type="text"
@@ -1115,7 +1137,9 @@
                     />
                   </div>
                   <div class="space-y-1">
-                    <label class="text-[9px] uppercase font-mono text-slate-500">Points</label>
+                    <label class="text-[9px] uppercase font-mono text-slate-500"
+                      >Points</label
+                    >
                     <input
                       v-model.number="form.flags[fIndex].points"
                       type="number"
@@ -1956,13 +1980,21 @@ const handleHackathonStatusChange = async (h, newStatus) => {
       hackathonStart: new Date(h.hackathonStart).toISOString(),
       hackathonEnd: new Date(h.hackathonEnd).toISOString(),
       maxTeams: h.maxTeams,
-      coverImage: h.coverImage || "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800",
-      banner: h.banner || "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800",
-      challenges: (h.challenges || []).map(c => typeof c === 'object' && c._id ? c._id : c),
-      status: newStatus
+      coverImage:
+        h.coverImage ||
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800",
+      banner:
+        h.banner ||
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800",
+      challenges: (h.challenges || []).map((c) =>
+        typeof c === "object" && c._id ? c._id : c,
+      ),
+      status: newStatus,
     };
     await api.put(`/admin/hackathons/${h._id}`, payload);
-    toast.success(`Xakaton holati "${newStatus}" ga muvaffaqiyatli o'zgartirildi!`);
+    toast.success(
+      `Xakaton holati "${newStatus}" ga muvaffaqiyatli o'zgartirildi!`,
+    );
     loadHackathons();
     loadStats();
     loadAuditLogs();
@@ -2044,15 +2076,15 @@ const openEditModal = (ctf) => {
   }));
 
   const mappedFlags = (ctf.flags || []).map((f) => {
-    if (typeof f === 'object' && f !== null) {
+    if (typeof f === "object" && f !== null) {
       return {
         flag: f.flag || "",
-        points: f.points !== undefined ? f.points : 100
+        points: f.points !== undefined ? f.points : 100,
       };
     }
     return {
       flag: f || "",
-      points: 100
+      points: 100,
     };
   });
 
@@ -2174,7 +2206,7 @@ const submitChallenge = async () => {
     hint: form.value.hint || "",
     flags: form.value.flags.map((f) => ({
       flag: f.flag.trim(),
-      points: f.points !== undefined ? f.points : 100
+      points: f.points !== undefined ? f.points : 100,
     })),
     questions: formattedQuestions,
   };
