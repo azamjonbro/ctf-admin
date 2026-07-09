@@ -337,12 +337,20 @@
               >
                 // ACTIVE CHALLENGES REGISTRY
               </h3>
-              <button
-                @click="openCreateModal"
-                class="px-4 py-1.5 bg-cyber-primary text-[#0B1020] text-xs font-bold font-mono rounded hover:bg-cyber-primary/90 transition shadow-neon-primary"
-              >
-                + DEPLOY NEW CHALLENGE
-              </button>
+              <div class="flex items-center space-x-2">
+                <button
+                  @click="promptResetProgress('ctf')"
+                  class="px-4 py-1.5 bg-yellow-600/30 hover:bg-yellow-600/40 text-yellow-500 border border-yellow-500/20 text-xs font-bold font-mono rounded transition"
+                >
+                  ⚡ RESET PRACTICE PROGRESS
+                </button>
+                <button
+                  @click="openCreateModal"
+                  class="px-4 py-1.5 bg-cyber-primary text-[#0B1020] text-xs font-bold font-mono rounded hover:bg-cyber-primary/90 transition shadow-neon-primary"
+                >
+                  + DEPLOY NEW CHALLENGE
+                </button>
+              </div>
             </div>
 
             <!-- CTF Table List -->
@@ -415,6 +423,12 @@
                         class="text-cyber-secondary hover:underline"
                       >
                         Edit
+                      </button>
+                      <button
+                        @click="promptResetProgress('challenge', ctf._id)"
+                        class="text-yellow-500 hover:underline"
+                      >
+                        Reset Progress
                       </button>
                       <button
                         @click="handleDelete(ctf._id)"
@@ -536,6 +550,12 @@
                         class="px-2.5 py-1 bg-red-600 text-white text-[10px] font-bold font-mono rounded hover:bg-red-700 transition uppercase"
                       >
                         🗑️ DELETE
+                      </button>
+                      <button
+                        @click="promptResetProgress('hackathon', h._id)"
+                        class="px-2.5 py-1 bg-yellow-600 text-white text-[10px] font-bold font-mono rounded hover:bg-yellow-700 transition uppercase"
+                      >
+                        ⚡ RESET PROGRESS
                       </button>
                     </td>
                   </tr>
@@ -1776,7 +1796,7 @@ const handleLogin = async () => {
       deviceName: "Admin Dashboard Client",
     });
 
-    const { accessToken, user } = res.data.data;
+    const { accessToken, refreshToken, user } = res.data.data;
     if (!user.roles.includes("admin") && !user.roles.includes("staff")) {
       toast.error(
         "Access Denied: Operators require Admin/Staff signature key.",
@@ -1785,6 +1805,9 @@ const handleLogin = async () => {
     }
 
     localStorage.setItem("adminToken", accessToken);
+    if (refreshToken) {
+      localStorage.setItem("adminRefreshToken", refreshToken);
+    }
     localStorage.setItem("adminUser", JSON.stringify(user));
     adminUser.value = user;
     isAuthenticated.value = true;
@@ -1802,6 +1825,7 @@ const handleLogin = async () => {
 
 const handleLogout = () => {
   localStorage.removeItem("adminToken");
+  localStorage.removeItem("adminRefreshToken");
   localStorage.removeItem("adminUser");
   adminUser.value = null;
   isAuthenticated.value = false;
@@ -2014,6 +2038,36 @@ const handleDelete = async (challengeId) => {
     loadAuditLogs();
   } catch (err) {
     toast.error(err?.error?.message || "Failed to delete challenge.");
+  }
+};
+
+const promptResetProgress = async (type, targetId = null) => {
+  try {
+    const url = `/admin/reset/info?type=${type}${targetId ? '&targetId=' + targetId : ''}`;
+    const infoRes = await api.get(url);
+    const details = infoRes.data.data.details;
+    
+    let confirmMsg = "";
+    if (type === 'challenge') {
+      confirmMsg = `Are you sure you want to reset all user/team progress for the challenge "${details.title}"?\n\nThis will delete:\n- ${details.activeSessions || 0} active practice sessions\n- ${details.activeTeamSessions || 0} active hackathon sessions\n- ${details.totalSolves || 0} total solves\n\nScores and leaderboards will be dynamically recalculated. This action is irreversible!`;
+    } else if (type === 'ctf') {
+      confirmMsg = `Are you sure you want to reset progress for ALL practice CTF challenges?\n\nThis will delete:\n- ${details.activeSessions || 0} active sessions\n- ${details.totalPracticeSolves || 0} practice solves\n\nScores and leaderboards will be recalculated. This action is irreversible!`;
+    } else if (type === 'hackathon') {
+      confirmMsg = `Are you sure you want to reset all team progress for the hackathon "${details.name}"?\n\nThis will delete:\n- ${details.activeTeamSessions || 0} team sessions\n- ${details.totalSolves || 0} solves\n\nScores and leaderboards will be recalculated. This action is irreversible!`;
+    }
+
+    if (!confirm(confirmMsg)) return;
+
+    const res = await api.post('/admin/reset', { type, targetId });
+    toast.success(res.data.message || "Progress reset successfully.");
+    
+    loadChallenges();
+    loadHackathons();
+    loadStats();
+    loadAuditLogs();
+  } catch (err) {
+    const errorMsg = err?.error?.message || "Failed to reset progress.";
+    toast.error(errorMsg);
   }
 };
 
@@ -2537,6 +2591,7 @@ const adjustRateLimit = (delta) => {
 };
 
 onMounted(() => {
+  window.addEventListener('admin-logout', handleLogout);
   if (!isAuthenticated.value) {
     loadLoginCaptcha();
   } else {
@@ -2545,6 +2600,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  window.removeEventListener('admin-logout', handleLogout);
   destroyEditor();
 });
 </script>
