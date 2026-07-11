@@ -1178,7 +1178,7 @@
               <h4
                 class="text-xs uppercase font-mono font-bold tracking-widest text-cyber-secondary"
               >
-                // Question Nodes ({{ form.questions.length }} / 10)
+                // Question Nodes ({{ form.questions.length }})
               </h4>
               <button
                 type="button"
@@ -1188,14 +1188,6 @@
                 + ADD QUESTION
               </button>
             </div>
-
-            <p
-              v-if="form.questions.length < 5 || form.questions.length > 10"
-              class="text-[10px] font-mono text-cyber-danger uppercase"
-            >
-              ⚠️ Validation Alert: A challenge must contain between 5 and 10
-              questions.
-            </p>
 
             <div class="space-y-4">
               <div
@@ -1235,7 +1227,7 @@
                     <input
                       v-model.number="q.points"
                       type="number"
-                      min="10"
+                      min="0"
                       class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
                       required
                     />
@@ -1258,15 +1250,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div class="space-y-1">
                     <label class="text-[9px] uppercase font-mono text-slate-500"
-                      >Answer</label
+                      >Type</label
                     >
-                    <input
-                      v-model="q.answer"
-                      type="text"
+                    <select
+                      v-model="q.type"
                       class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
-                      placeholder="Plaintext answer to verify..."
-                      required
-                    />
+                    >
+                      <option value="text">Text / Input</option>
+                      <option value="multiple-choice">Multiple Choice</option>
+                    </select>
                   </div>
                   <div class="space-y-1">
                     <label class="text-[9px] uppercase font-mono text-slate-500"
@@ -1279,6 +1271,54 @@
                       placeholder="Hint detail..."
                     />
                   </div>
+                </div>
+
+                <div v-if="q.type === 'multiple-choice'" class="space-y-2 border border-white/5 p-2 rounded bg-black/20">
+                  <div class="flex justify-between items-center">
+                    <span class="text-[9px] uppercase font-mono text-slate-400">Options</span>
+                    <button
+                      type="button"
+                      @click="q.options.push('')"
+                      class="px-1.5 py-0.5 bg-cyber-primary text-[#0B1020] text-[8px] font-bold font-mono rounded hover:bg-cyber-primary/90 transition"
+                    >
+                      + Add Option
+                    </button>
+                  </div>
+                  <div class="space-y-1.5">
+                    <div
+                      v-for="(opt, optIdx) in q.options"
+                      :key="optIdx"
+                      class="flex items-center gap-2"
+                    >
+                      <input
+                        v-model="q.options[optIdx]"
+                        type="text"
+                        class="flex-1 bg-[#0B1020] border border-white/10 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                        placeholder="Option text..."
+                        required
+                      />
+                      <button
+                        type="button"
+                        @click="q.options.splice(optIdx, 1)"
+                        class="text-red-500 hover:text-red-400 font-mono text-[9px]"
+                      >
+                        [x]
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="text-[9px] uppercase font-mono text-slate-500"
+                    >Correct Answer</label
+                  >
+                  <input
+                    v-model="q.correctAnswer"
+                    type="text"
+                    class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                    placeholder="Plaintext answer to verify..."
+                    required
+                  />
                 </div>
 
                 <!-- Attachment file upload hook removed -->
@@ -2109,10 +2149,6 @@ const openCreateModal = () => {
     questions: [],
   };
 
-  for (let i = 0; i < 5; i++) {
-    addQuestionNode();
-  }
-
   showModal.value = true;
   initEditor("");
 };
@@ -2123,9 +2159,11 @@ const openEditModal = (ctf) => {
 
   const mappedQuestions = (ctf.questions || []).map((q) => ({
     title: q.title,
-    description: q.description,
-    points: q.points || q.score || 10,
-    answer: q.answer || "",
+    description: q.description || "",
+    type: q.type || "text",
+    options: q.options && Array.isArray(q.options) ? [...q.options] : [],
+    correctAnswer: q.correctAnswer || q.answer || "",
+    points: q.points !== undefined ? q.points : 10,
     hint: q.hint || "",
   }));
 
@@ -2182,15 +2220,13 @@ const destroyEditor = () => {
 };
 
 const addQuestionNode = () => {
-  if (form.value.questions.length >= 10) {
-    toast.warning("Maximum 10 questions permitted per challenge.");
-    return;
-  }
   form.value.questions.push({
     title: "",
     description: "",
+    type: "text",
+    options: [],
+    correctAnswer: "",
     points: 10,
-    answer: "",
     hint: "",
   });
 };
@@ -2216,13 +2252,6 @@ const removeFlagNode = (index) => {
 };
 
 const submitChallenge = async () => {
-  if (form.value.questions.length < 5 || form.value.questions.length > 10) {
-    toast.error(
-      "Validation Error: A challenge must contain between 5 and 10 questions.",
-    );
-    return;
-  }
-
   if (form.value.flags.length < 1 || form.value.flags.length > 3) {
     toast.error(
       "Validation Error: A challenge must contain between 1 and 3 flags.",
@@ -2240,9 +2269,11 @@ const submitChallenge = async () => {
   const formattedQuestions = form.value.questions.map((q) => {
     return {
       title: q.title,
-      description: q.description,
-      points: q.points,
-      answer: q.answer,
+      description: q.description || "",
+      type: q.type || "text",
+      options: q.options || [],
+      correctAnswer: q.correctAnswer || q.answer,
+      points: q.points !== undefined ? q.points : 10,
       hint: q.hint || "",
     };
   });
