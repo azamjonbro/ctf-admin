@@ -1094,17 +1094,7 @@
             </div>
           </div>
 
-          <div class="space-y-1">
-            <label class="text-[10px] uppercase font-mono text-slate-500"
-              >Challenge Hint (Optional)</label
-            >
-            <input
-              v-model="form.hint"
-              type="text"
-              class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
-              placeholder="e.g. Inspect response headers or try standard SQL inject payload..."
-            />
-          </div>
+
 
           <!-- Challenge Flags Section -->
           <div class="border-t border-white/10 pt-4 space-y-4">
@@ -1144,7 +1134,7 @@
                   </button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <div class="md:col-span-3 space-y-1">
+                  <div class="md:col-span-2 space-y-1">
                     <label class="text-[9px] uppercase font-mono text-slate-500"
                       >Flag Pattern</label
                     >
@@ -1165,6 +1155,17 @@
                       type="number"
                       class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
                       required
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[9px] uppercase font-mono text-slate-500"
+                      >Flag Hint (Optional)</label
+                    >
+                    <input
+                      v-model="form.flags[fIndex].hint"
+                      type="text"
+                      class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                      placeholder="Hint key or instructions"
                     />
                   </div>
                 </div>
@@ -2128,7 +2129,7 @@ const form = ref({
   image: "",
   attachments: [],
   hint: "",
-  flags: [{ flag: "", points: 100 }],
+  flags: [{ flag: "", points: 100, hint: "" }],
   questions: [],
 });
 
@@ -2145,7 +2146,7 @@ const openCreateModal = () => {
     image: "",
     attachments: [],
     hint: "",
-    flags: [{ flag: "", points: 100 }],
+    flags: [{ flag: "", points: 100, hint: "" }],
     questions: [],
   };
 
@@ -2172,11 +2173,13 @@ const openEditModal = (ctf) => {
       return {
         flag: f.flag || "",
         points: f.points !== undefined ? f.points : 100,
+        hint: f.hint || "",
       };
     }
     return {
       flag: f || "",
       points: 100,
+      hint: "",
     };
   });
 
@@ -2191,7 +2194,7 @@ const openEditModal = (ctf) => {
     attachments:
       ctf.attachments && ctf.attachments.length > 0 ? [...ctf.attachments] : [],
     hint: ctf.hint || "",
-    flags: mappedFlags.length > 0 ? mappedFlags : [{ flag: "", points: 100 }],
+    flags: mappedFlags.length > 0 ? mappedFlags : [{ flag: "", points: 100, hint: "" }],
     questions: mappedQuestions,
   };
 
@@ -2240,7 +2243,7 @@ const addFlagNode = () => {
     toast.warning("Maximum 3 flags permitted per challenge.");
     return;
   }
-  form.value.flags.push({ flag: "", points: 100 });
+  form.value.flags.push({ flag: "", points: 100, hint: "" });
 };
 
 const removeFlagNode = (index) => {
@@ -2292,6 +2295,7 @@ const submitChallenge = async () => {
     flags: form.value.flags.map((f) => ({
       flag: f.flag.trim(),
       points: f.points !== undefined ? f.points : 100,
+      hint: f.hint ? f.hint.trim() : "",
     })),
     questions: formattedQuestions,
   };
