@@ -1591,182 +1591,393 @@
         </div>
 
         <div v-if="selectedHackathonStats" class="space-y-6 font-mono text-xs">
-          <!-- 1. Leaderboard Standings -->
-          <div class="space-y-2">
-            <h4
-              class="text-xs uppercase font-bold text-cyber-secondary tracking-widest"
+          <!-- Tabs Navigation -->
+          <div class="flex gap-4 border-b border-white/10 pb-1">
+            <button
+              @click="activeStatsTab = 'live'"
+              :class="[
+                'px-4 py-2 text-xs font-mono font-bold tracking-wider uppercase border-b-2 transition duration-200',
+                activeStatsTab === 'live'
+                  ? 'text-cyber-primary border-cyber-primary'
+                  : 'text-slate-400 border-transparent hover:text-white'
+              ]"
             >
-              // Teams Standings
-            </h4>
-            <div
-              class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30"
+              📊 Standings & Activity
+            </button>
+            <button
+              @click="activeStatsTab = 'questions'"
+              :class="[
+                'px-4 py-2 text-xs font-mono font-bold tracking-wider uppercase border-b-2 transition duration-200',
+                activeStatsTab === 'questions'
+                  ? 'text-cyber-primary border-cyber-primary'
+                  : 'text-slate-400 border-transparent hover:text-white'
+              ]"
             >
-              <table class="w-full text-left border-collapse text-[11px]">
-                <thead>
-                  <tr
-                    class="border-b border-white/10 text-slate-400 bg-white/5"
-                  >
-                    <th class="py-2.5 px-4">Rank</th>
-                    <th class="py-2.5 px-4">Team Name</th>
-                    <th class="py-2.5 px-4">Solves</th>
-                    <th class="py-2.5 px-4">Score</th>
-                    <th class="py-2.5 px-4">Completion %</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5">
-                  <tr
-                    v-for="team in selectedHackathonStats.leaderboard"
-                    :key="team._id"
-                    class="hover:bg-white/5 transition"
-                  >
-                    <td class="py-2.5 px-4 font-bold text-white">
-                      #{{ team.rank }}
-                    </td>
-                    <td class="py-2.5 px-4 text-cyber-secondary font-bold">
-                      {{ team.teamName }}
-                    </td>
-                    <td class="py-2.5 px-4 text-slate-300">
-                      {{ team.solved }} Solves
-                    </td>
-                    <td class="py-2.5 px-4 text-cyber-primary font-bold">
-                      {{ team.points }} Points
-                    </td>
-                    <td class="py-2.5 px-4">
-                      <div class="flex items-center gap-2">
-                        <div
-                          class="w-16 bg-white/10 h-2 rounded overflow-hidden"
-                        >
+              📝 Question Analytics
+            </button>
+          </div>
+
+          <!-- Tab 1: Standings & Activity -->
+          <div v-if="activeStatsTab === 'live'" class="space-y-6">
+            <!-- 1. Leaderboard Standings -->
+            <div class="space-y-2">
+              <h4
+                class="text-xs uppercase font-bold text-cyber-secondary tracking-widest"
+              >
+                // Teams Standings
+              </h4>
+              <div
+                class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30"
+              >
+                <table class="w-full text-left border-collapse text-[11px]">
+                  <thead>
+                    <tr
+                      class="border-b border-white/10 text-slate-400 bg-white/5"
+                    >
+                      <th class="py-2.5 px-4">Rank</th>
+                      <th class="py-2.5 px-4">Team Name</th>
+                      <th class="py-2.5 px-4">Solves</th>
+                      <th class="py-2.5 px-4">Score</th>
+                      <th class="py-2.5 px-4">Completion %</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/5">
+                    <tr
+                      v-for="team in selectedHackathonStats.leaderboard"
+                      :key="team._id"
+                      class="hover:bg-white/5 transition"
+                    >
+                      <td class="py-2.5 px-4 font-bold text-white">
+                        #{{ team.rank }}
+                      </td>
+                      <td class="py-2.5 px-4 text-cyber-secondary font-bold">
+                        {{ team.teamName }}
+                      </td>
+                      <td class="py-2.5 px-4 text-slate-300">
+                        {{ team.solved }} Solves
+                      </td>
+                      <td class="py-2.5 px-4 text-cyber-primary font-bold">
+                        {{ team.points }} Points
+                      </td>
+                      <td class="py-2.5 px-4">
+                        <div class="flex items-center gap-2">
                           <div
-                            class="bg-cyber-primary h-full"
-                            :style="{
-                              width:
-                                Math.min(100, team.completionPercentage) + '%',
-                            }"
-                          ></div>
+                            class="w-16 bg-white/10 h-2 rounded overflow-hidden"
+                          >
+                            <div
+                              class="bg-cyber-primary h-full"
+                              :style="{
+                                width:
+                                  Math.min(100, team.completionPercentage) + '%',
+                              }"
+                            ></div>
+                          </div>
+                          <span
+                            >{{ Math.round(team.completionPercentage) }}%</span
+                          >
                         </div>
-                        <span
-                          >{{ Math.round(team.completionPercentage) }}%</span
-                        >
+                      </td>
+                    </tr>
+                    <tr v-if="selectedHackathonStats.leaderboard.length === 0">
+                      <td colspan="5" class="text-center py-4 text-slate-500">
+                        No score points recorded yet.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 2. Active Workspaces -->
+            <div class="space-y-2">
+              <h4
+                class="text-xs uppercase font-bold text-cyber-secondary tracking-widest"
+              >
+                // Active Workspaces (Current Timers)
+              </h4>
+              <div
+                class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30"
+              >
+                <table class="w-full text-left border-collapse text-[11px]">
+                  <thead>
+                    <tr
+                      class="border-b border-white/10 text-slate-400 bg-white/5"
+                    >
+                      <th class="py-2.5 px-4">Team Name</th>
+                      <th class="py-2.5 px-4">Active Challenge</th>
+                      <th class="py-2.5 px-4">Timer Started</th>
+                      <th class="py-2.5 px-4">Time Remaining</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/5">
+                    <tr
+                      v-for="(
+                        session, sIndex
+                      ) in selectedHackathonStats.activeSessions"
+                      :key="sIndex"
+                      class="hover:bg-white/5 transition"
+                    >
+                      <td class="py-2.5 px-4 font-bold text-white">
+                        {{ session.teamName }}
+                      </td>
+                      <td class="py-2.5 px-4 text-cyber-secondary font-bold">
+                        {{ session.challengeTitle }}
+                      </td>
+                      <td class="py-2.5 px-4 text-slate-400">
+                        {{ new Date(session.openedAt).toLocaleTimeString() }}
+                      </td>
+                      <td class="py-2.5 px-4 text-cyber-danger font-bold">
+                        {{ formatTimeRemaining(session.timeRemainingSeconds) }}
+                      </td>
+                    </tr>
+                    <tr v-if="selectedHackathonStats.activeSessions.length === 0">
+                      <td colspan="4" class="text-center py-4 text-slate-500">
+                        No active sessions or timers right now.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 3. Solve Activity Feed -->
+            <div class="space-y-2">
+              <h4
+                class="text-xs uppercase font-bold text-cyber-secondary tracking-widest"
+              >
+                // Real-Time Solves Feed
+              </h4>
+              <div
+                class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30"
+              >
+                <table class="w-full text-left border-collapse text-[11px]">
+                  <thead>
+                    <tr
+                      class="border-b border-white/10 text-slate-400 bg-white/5"
+                    >
+                      <th class="py-2.5 px-4">Player</th>
+                      <th class="py-2.5 px-4">Team</th>
+                      <th class="py-2.5 px-4">Challenge</th>
+                      <th class="py-2.5 px-4">Question Node</th>
+                      <th class="py-2.5 px-4">Score Awarded</th>
+                      <th class="py-2.5 px-4">Time Solved</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/5">
+                    <tr
+                      v-for="solve in selectedHackathonStats.userSolves"
+                      :key="solve._id"
+                      class="hover:bg-white/5 transition border-l-2 border-cyber-primary"
+                    >
+                      <td class="py-2.5 px-4 font-bold text-white">
+                        {{ solve.username }}
+                      </td>
+                      <td class="py-2.5 px-4 text-slate-300">
+                        {{ solve.teamName }}
+                      </td>
+                      <td class="py-2.5 px-4 text-cyber-secondary font-bold">
+                        {{ solve.challengeTitle }}
+                      </td>
+                      <td class="py-2.5 px-4 text-slate-400">
+                        {{ solve.questionTitle }}
+                      </td>
+                      <td class="py-2.5 px-4 text-cyber-primary font-bold">
+                        +{{ solve.points }} Pts
+                      </td>
+                      <td class="py-2.5 px-4 text-slate-500">
+                        {{ new Date(solve.timestamp).toLocaleString() }}
+                      </td>
+                    </tr>
+                    <tr v-if="selectedHackathonStats.userSolves.length === 0">
+                      <td colspan="6" class="text-center py-4 text-slate-500">
+                        No solves submitted yet.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Question Analytics -->
+          <div v-else-if="activeStatsTab === 'questions'" class="space-y-6">
+            <!-- Dashboard Metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="p-4 bg-[#131C35]/30 border border-white/5 rounded-lg space-y-1">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">// Total Questions</span>
+                <span class="block text-xl font-extrabold text-cyber-primary font-mono">{{ selectedHackathonStats.dashboard?.totalQuestions || 0 }}</span>
+              </div>
+              <div class="p-4 bg-[#131C35]/30 border border-white/5 rounded-lg space-y-1">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">// Total Participants</span>
+                <span class="block text-xl font-extrabold text-cyber-secondary font-mono">{{ selectedHackathonStats.dashboard?.totalParticipants || 0 }}</span>
+              </div>
+              <div class="p-4 bg-[#131C35]/30 border border-white/5 rounded-lg space-y-1">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">// Overall Success Rate</span>
+                <span class="block text-xl font-extrabold text-cyber-accent font-mono">{{ selectedHackathonStats.dashboard?.overallSuccessRate || 0 }}%</span>
+              </div>
+              <div class="p-4 bg-[#131C35]/30 border border-white/5 rounded-lg space-y-1">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">// Correct / Wrong Answers</span>
+                <span class="block text-sm font-bold text-slate-200 font-mono mt-1">
+                  <span class="text-emerald-400">✅ {{ selectedHackathonStats.dashboard?.totalCorrectAnswers || 0 }}</span>
+                  <span class="text-slate-500 mx-1.5">/</span>
+                  <span class="text-rose-400">❌ {{ selectedHackathonStats.dashboard?.totalWrongAnswers || 0 }}</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Easiest & Most Difficult -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 bg-[#131C35]/20 border border-white/5 rounded-lg space-y-1">
+                <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">🌟 Easiest Question (Eng ko'p yechilgan)</span>
+                <span class="block text-xs font-bold text-slate-200 font-mono mt-1">{{ selectedHackathonStats.dashboard?.easiestQuestion || '—' }}</span>
+              </div>
+              <div class="p-4 bg-[#131C35]/20 border border-white/5 rounded-lg space-y-1">
+                <span class="text-[10px] text-rose-400 font-bold uppercase tracking-wider">⚠️ Most Difficult Question (Eng kam yechilgan)</span>
+                <span class="block text-xs font-bold text-slate-200 font-mono mt-1">{{ selectedHackathonStats.dashboard?.mostDifficultQuestion || '—' }}</span>
+              </div>
+            </div>
+
+            <!-- Question Accordion Breakdowns -->
+            <div class="space-y-3">
+              <h4 class="text-xs uppercase font-bold text-cyber-secondary tracking-widest">// Question Breakdowns</h4>
+              
+              <div v-if="!selectedHackathonStats.questionStats || selectedHackathonStats.questionStats.length === 0" class="text-center py-8 border border-white/5 rounded bg-[#131C35]/30 text-slate-500">
+                No questions found in this hackathon.
+              </div>
+
+              <div v-else class="space-y-3">
+                <div
+                  v-for="q in selectedHackathonStats.questionStats"
+                  :key="q.questionId"
+                  class="border border-white/10 rounded-lg overflow-hidden bg-[#131C35]/20 hover:border-white/20 transition"
+                >
+                  <!-- Header -->
+                  <div
+                    @click="toggleQuestion(q.questionId)"
+                    class="flex flex-col md:flex-row md:items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition gap-4"
+                  >
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2">
+                        <span class="text-slate-400 text-[9px] uppercase font-bold font-mono px-1.5 py-0.5 bg-white/5 rounded border border-white/10">{{ q.challengeTitle }}</span>
+                        <span class="text-cyber-primary font-bold text-xs">{{ q.questionTitle }}</span>
                       </div>
-                    </td>
-                  </tr>
-                  <tr v-if="selectedHackathonStats.leaderboard.length === 0">
-                    <td colspan="5" class="text-center py-4 text-slate-500">
-                      No score points recorded yet.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                      <div class="text-[10px] text-slate-500 font-mono">
+                        ID: <span class="text-slate-400">{{ q.questionId }}</span> | Max Score: <span class="text-cyber-secondary font-bold">{{ q.maxPoints }} Pts</span>
+                      </div>
+                    </div>
 
-          <!-- 2. Active Workspaces -->
-          <div class="space-y-2">
-            <h4
-              class="text-xs uppercase font-bold text-cyber-secondary tracking-widest"
-            >
-              // Active Workspaces (Current Timers)
-            </h4>
-            <div
-              class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30"
-            >
-              <table class="w-full text-left border-collapse text-[11px]">
-                <thead>
-                  <tr
-                    class="border-b border-white/10 text-slate-400 bg-white/5"
-                  >
-                    <th class="py-2.5 px-4">Team Name</th>
-                    <th class="py-2.5 px-4">Active Challenge</th>
-                    <th class="py-2.5 px-4">Timer Started</th>
-                    <th class="py-2.5 px-4">Time Remaining</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5">
-                  <tr
-                    v-for="(
-                      session, sIndex
-                    ) in selectedHackathonStats.activeSessions"
-                    :key="sIndex"
-                    class="hover:bg-white/5 transition"
-                  >
-                    <td class="py-2.5 px-4 font-bold text-white">
-                      {{ session.teamName }}
-                    </td>
-                    <td class="py-2.5 px-4 text-cyber-secondary font-bold">
-                      {{ session.challengeTitle }}
-                    </td>
-                    <td class="py-2.5 px-4 text-slate-400">
-                      {{ new Date(session.openedAt).toLocaleTimeString() }}
-                    </td>
-                    <td class="py-2.5 px-4 text-cyber-danger font-bold">
-                      {{ formatTimeRemaining(session.timeRemainingSeconds) }}
-                    </td>
-                  </tr>
-                  <tr v-if="selectedHackathonStats.activeSessions.length === 0">
-                    <td colspan="4" class="text-center py-4 text-slate-500">
-                      No active sessions or timers right now.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                    <!-- Stats brief -->
+                    <div class="flex items-center gap-4 text-slate-300 font-mono text-[11px] select-none">
+                      <div>
+                        <span class="text-slate-500 uppercase text-[9px] block">Attempts</span>
+                        <span class="font-bold text-white">{{ q.answeredCount }} users</span>
+                      </div>
+                      <div>
+                        <span class="text-emerald-400 uppercase text-[9px] block">Correct</span>
+                        <span class="font-bold text-emerald-400">✅ {{ q.correctCount }}</span>
+                      </div>
+                      <div>
+                        <span class="text-rose-400 uppercase text-[9px] block">Wrong</span>
+                        <span class="font-bold text-rose-400">❌ {{ q.wrongCount }}</span>
+                      </div>
+                      <div>
+                        <span class="text-cyber-accent uppercase text-[9px] block">Rate</span>
+                        <span class="font-bold text-cyber-accent">{{ q.successRate }}%</span>
+                      </div>
+                      <div class="text-slate-400 text-sm ml-2">
+                        {{ expandedQuestions[q.questionId] ? '▲' : '▼' }}
+                      </div>
+                    </div>
+                  </div>
 
-          <!-- 3. Solve Activity Feed -->
-          <div class="space-y-2">
-            <h4
-              class="text-xs uppercase font-bold text-cyber-secondary tracking-widest"
-            >
-              // Real-Time Solves Feed
-            </h4>
-            <div
-              class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30"
-            >
-              <table class="w-full text-left border-collapse text-[11px]">
-                <thead>
-                  <tr
-                    class="border-b border-white/10 text-slate-400 bg-white/5"
+                  <!-- Collapsible Content -->
+                  <div
+                    v-if="expandedQuestions[q.questionId]"
+                    class="border-t border-white/5 bg-[#0B1020]/50 p-4 space-y-4"
                   >
-                    <th class="py-2.5 px-4">Player</th>
-                    <th class="py-2.5 px-4">Team</th>
-                    <th class="py-2.5 px-4">Challenge</th>
-                    <th class="py-2.5 px-4">Question Node</th>
-                    <th class="py-2.5 px-4">Score Awarded</th>
-                    <th class="py-2.5 px-4">Time Solved</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5">
-                  <tr
-                    v-for="solve in selectedHackathonStats.userSolves"
-                    :key="solve._id"
-                    class="hover:bg-white/5 transition border-l-2 border-cyber-primary"
-                  >
-                    <td class="py-2.5 px-4 font-bold text-white">
-                      {{ solve.username }}
-                    </td>
-                    <td class="py-2.5 px-4 text-slate-300">
-                      {{ solve.teamName }}
-                    </td>
-                    <td class="py-2.5 px-4 text-cyber-secondary font-bold">
-                      {{ solve.challengeTitle }}
-                    </td>
-                    <td class="py-2.5 px-4 text-slate-400">
-                      {{ solve.questionTitle }}
-                    </td>
-                    <td class="py-2.5 px-4 text-cyber-primary font-bold">
-                      +{{ solve.points }} Pts
-                    </td>
-                    <td class="py-2.5 px-4 text-slate-500">
-                      {{ new Date(solve.timestamp).toLocaleString() }}
-                    </td>
-                  </tr>
-                  <tr v-if="selectedHackathonStats.userSolves.length === 0">
-                    <td colspan="6" class="text-center py-4 text-slate-500">
-                      No solves submitted yet.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    <!-- Detailed Info Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[11px] font-mono border-b border-white/5 pb-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 uppercase text-[9px]">Average Solve Duration</span>
+                        <span class="block text-slate-200 font-bold">⏱️ {{ q.averageTime || '—' }}</span>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 uppercase text-[9px]">First Solver</span>
+                        <span class="block text-emerald-400 font-bold">🥇 {{ q.firstSolver || '—' }}</span>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 uppercase text-[9px]">Last Solver</span>
+                        <span class="block text-slate-300 font-bold">🏁 {{ q.lastSolver || '—' }}</span>
+                      </div>
+                    </div>
+
+                    <!-- User Submissions Table -->
+                    <div class="space-y-2">
+                      <span class="text-slate-400 uppercase text-[10px] font-bold tracking-wider block">// User Performance Standings</span>
+                      <div class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/10">
+                        <table class="w-full text-left border-collapse text-[10px]">
+                          <thead>
+                            <tr class="border-b border-white/10 text-slate-400 bg-white/5">
+                              <th class="py-2 px-3">User</th>
+                              <th class="py-2 px-3">Full Name</th>
+                              <th class="py-2 px-3 text-center">Attempt</th>
+                              <th class="py-2 px-3">Status</th>
+                              <th class="py-2 px-3 text-right">Score</th>
+                              <th class="py-2 px-3">Submitted At</th>
+                              <th class="py-2 px-3">Time Spent</th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-white/5">
+                            <tr
+                              v-for="u in q.userStats"
+                              :key="u.username"
+                              class="hover:bg-white/5 transition"
+                            >
+                              <td class="py-2 px-3 font-bold text-white">@{{ u.username }}</td>
+                              <td class="py-2 px-3 text-slate-300">{{ u.fullName }}</td>
+                              <td class="py-2 px-3 text-center text-slate-300 font-bold">{{ u.attempt }}</td>
+                              <td class="py-2 px-3">
+                                <span
+                                  v-if="u.status === 'Correct'"
+                                  class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-[9px] uppercase"
+                                >
+                                  ✅ Correct
+                                </span>
+                                <span
+                                  v-else-if="u.status === 'Wrong'"
+                                  class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold text-[9px] uppercase"
+                                >
+                                  ❌ Wrong
+                                </span>
+                                <span
+                                  v-else
+                                  class="px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 border border-white/10 font-bold text-[9px] uppercase"
+                                >
+                                  ⏳ Not Answered
+                                </span>
+                              </td>
+                              <td class="py-2 px-3 text-right font-bold" :class="u.status === 'Correct' ? 'text-cyber-primary' : 'text-slate-500'">
+                                {{ u.score }} Pts
+                              </td>
+                              <td class="py-2 px-3 text-slate-400">
+                                {{ u.submittedAt ? new Date(u.submittedAt).toLocaleString() : '—' }}
+                              </td>
+                              <td class="py-2 px-3 font-bold text-slate-300">
+                                {{ u.timeSpent }}
+                              </td>
+                            </tr>
+                            <tr v-if="!q.userStats || q.userStats.length === 0">
+                              <td colspan="7" class="text-center py-3 text-slate-500">
+                                No participants registered for this hackathon.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2414,10 +2625,18 @@ const deleteHackathonPrompt = async (h) => {
 const showStatsModal = ref(false);
 const selectedHackathonStats = ref(null);
 const currentHackathonId = ref("");
+const activeStatsTab = ref("live"); // 'live' or 'questions'
+const expandedQuestions = ref({});
+
+const toggleQuestion = (qId) => {
+  expandedQuestions.value[qId] = !expandedQuestions.value[qId];
+};
 
 const openHackathonAnalytics = async (hackathonId) => {
   currentHackathonId.value = hackathonId;
   selectedHackathonStats.value = null;
+  activeStatsTab.value = "live";
+  expandedQuestions.value = {};
   showStatsModal.value = true;
   await fetchAnalyticsData(hackathonId);
 };
