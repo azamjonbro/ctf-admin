@@ -969,6 +969,10 @@
                 <option value="Scripting">Scripting</option>
                 <option value="Networking">Networking</option>
                 <option value="System">System Hardening</option>
+                <option value="Network Security">Network Security</option>
+                <option value="OSINT">OSINT</option>
+                <option value="Privilege Escalation">Privilege Escalation</option>
+                <option value="Active Directory">Active Directory</option>
               </select>
             </div>
             <div class="space-y-1">
