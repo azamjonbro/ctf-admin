@@ -417,25 +417,45 @@
                     <td class="py-3 px-4 text-slate-400">
                       {{ ctf.author?.username || "Unknown" }}
                     </td>
-                    <td class="py-3 px-4 text-right space-x-2">
-                      <button
-                        @click="openEditModal(ctf)"
-                        class="text-cyber-secondary hover:underline"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        @click="promptResetProgress('challenge', ctf._id)"
-                        class="text-yellow-500 hover:underline"
-                      >
-                        Reset Progress
-                      </button>
-                      <button
-                        @click="handleDelete(ctf._id)"
-                        class="text-red-500 hover:underline"
-                      >
-                        Delete
-                      </button>
+                    <td class="py-3 px-4">
+                      <div class="flex items-center justify-end space-x-1.5">
+                        <button
+                          @click="openEditModal(ctf)"
+                          title="Tahrirlash"
+                          class="p-1.5 bg-cyber-secondary/15 hover:bg-cyber-secondary/30 text-cyber-secondary border border-cyber-secondary/20 hover:border-cyber-secondary/40 rounded transition inline-flex items-center justify-center"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        <button
+                          @click="openChallengeAnalytics(ctf._id)"
+                          title="Analitika"
+                          class="p-1.5 bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded transition inline-flex items-center justify-center"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                          </svg>
+                        </button>
+                        <button
+                          @click="promptResetProgress('challenge', ctf._id)"
+                          title="Urinishlarni tozalash"
+                          class="p-1.5 bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-500 border border-yellow-500/20 hover:border-yellow-500/40 rounded transition inline-flex items-center justify-center"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12"></path>
+                          </svg>
+                        </button>
+                        <button
+                          @click="handleDelete(ctf._id)"
+                          title="O'chirish"
+                          class="p-1.5 bg-red-500/15 hover:bg-red-500/30 text-red-500 border border-red-500/20 hover:border-red-500/40 rounded transition inline-flex items-center justify-center"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   <tr v-if="challenges.length === 0">
@@ -2764,6 +2784,89 @@ const refreshHackathonStats = async () => {
     toast.success("Analytics logs successfully refreshed.");
   }
 };
+
+// Challenge analytics monitor logic
+const showChallengeAnalyticsModal = ref(false);
+const selectedChallengeAnalytics = ref(null);
+const currentChallengeIdForAnalytics = ref("");
+const activeChallengeTab = ref("questions"); // 'questions' or 'participants'
+const expandedChallengeQuestions = ref({});
+
+const toggleChallengeQuestion = (qId) => {
+  expandedChallengeQuestions.value[qId] = !expandedChallengeQuestions.value[qId];
+};
+
+const openChallengeAnalytics = async (challengeId) => {
+  currentChallengeIdForAnalytics.value = challengeId;
+  selectedChallengeAnalytics.value = null;
+  activeChallengeTab.value = "questions";
+  expandedChallengeQuestions.value = {};
+  showChallengeAnalyticsModal.value = true;
+  await fetchChallengeAnalytics(challengeId);
+};
+
+const fetchChallengeAnalytics = async (challengeId) => {
+  try {
+    const res = await api.get(`/admin/ctfs/${challengeId}/analytics`);
+    selectedChallengeAnalytics.value = res.data.data;
+  } catch (err) {
+    toast.error(
+      err?.error?.message || "Failed to download challenge analytics data.",
+    );
+    showChallengeAnalyticsModal.value = false;
+  }
+};
+
+const refreshChallengeAnalytics = async () => {
+  if (currentChallengeIdForAnalytics.value) {
+    await fetchChallengeAnalytics(currentChallengeIdForAnalytics.value);
+    toast.success("Analytics logs successfully refreshed.");
+  }
+};
+
+const getQuestionParticipantStats = (questionId) => {
+  if (!selectedChallengeAnalytics.value) return [];
+  const stats = [];
+  
+  // Extract from user stats
+  (selectedChallengeAnalytics.value.userStats || []).forEach(user => {
+    const qDetail = (user.questionsDetail || []).find(qd => qd.questionId === questionId);
+    if (qDetail && (qDetail.solved || qDetail.failedAttempts > 0)) {
+      stats.push({
+        id: user.userId,
+        name: `@${user.username}`,
+        subtext: user.fullName,
+        type: 'user',
+        failedAttempts: qDetail.failedAttempts,
+        solved: qDetail.solved,
+        solvedAt: qDetail.solvedAt
+      });
+    }
+  });
+
+  // Extract from team stats
+  (selectedChallengeAnalytics.value.teamStats || []).forEach(team => {
+    const qDetail = (team.questionsDetail || []).find(qd => qd.questionId === questionId);
+    if (qDetail && (qDetail.solved || qDetail.failedAttempts > 0)) {
+      stats.push({
+        id: team.teamId,
+        name: team.teamName,
+        subtext: '',
+        type: 'team',
+        failedAttempts: qDetail.failedAttempts,
+        solved: qDetail.solved,
+        solvedAt: qDetail.solvedAt
+      });
+    }
+  });
+
+  return stats.sort((a, b) => {
+    if (a.solved && !b.solved) return -1;
+    if (!a.solved && b.solved) return 1;
+    return b.failedAttempts - a.failedAttempts;
+  });
+};
+
 
 const formatTimeRemaining = (seconds) => {
   if (seconds <= 0) return "Expired";
