@@ -117,10 +117,10 @@
           <nav class="space-y-2">
             <button
               @click="activeSection = 'dashboard'"
-              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5"
+              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5 border border-transparent"
               :class="
                 activeSection === 'dashboard'
-                  ? 'bg-cyber-primary/10 text-cyber-primary border border-cyber-primary/20 shadow-neon-primary'
+                  ? 'bg-cyber-primary/10 text-cyber-primary border-cyber-primary/20 shadow-neon-primary'
                   : 'text-slate-400'
               "
             >
@@ -132,10 +132,10 @@
 
             <button
               @click="activeSection = 'ctfs'"
-              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5"
+              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5 border border-transparent"
               :class="
                 activeSection === 'ctfs'
-                  ? 'bg-cyber-primary/10 text-cyber-primary border border-cyber-primary/20 shadow-neon-primary'
+                  ? 'bg-cyber-primary/10 text-cyber-primary border-cyber-primary/20 shadow-neon-primary'
                   : 'text-slate-400'
               "
             >
@@ -147,10 +147,10 @@
 
             <button
               @click="activeSection = 'hackathons'"
-              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5"
+              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5 border border-transparent"
               :class="
                 activeSection === 'hackathons'
-                  ? 'bg-cyber-secondary/10 text-cyber-secondary border border-cyber-secondary/20 shadow-neon-secondary'
+                  ? 'bg-cyber-secondary/10 text-cyber-secondary border-cyber-secondary/20 shadow-neon-secondary'
                   : 'text-slate-400'
               "
             >
@@ -162,10 +162,10 @@
 
             <button
               @click="activeSection = 'logs'"
-              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5"
+              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5 border border-transparent"
               :class="
                 activeSection === 'logs'
-                  ? 'bg-cyber-primary/10 text-cyber-primary border border-cyber-primary/20 shadow-neon-primary'
+                  ? 'bg-cyber-primary/10 text-cyber-primary border-cyber-primary/20 shadow-neon-primary'
                   : 'text-slate-400'
               "
             >
@@ -177,10 +177,10 @@
 
             <button
               @click="activeSection = 'settings'"
-              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5"
+              class="w-full flex items-center px-4 py-2.5 rounded text-xs font-mono font-bold transition hover:bg-white/5 border border-transparent"
               :class="
                 activeSection === 'settings'
-                  ? 'bg-cyber-primary/10 text-cyber-primary border border-cyber-primary/20 shadow-neon-primary'
+                  ? 'bg-cyber-primary/10 text-cyber-primary border-cyber-primary/20 shadow-neon-primary'
                   : 'text-slate-400'
               "
             >
