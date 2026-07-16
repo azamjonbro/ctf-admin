@@ -244,47 +244,75 @@
           <!-- Metrics Overview Cards -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div
-              class="p-5 rounded-lg bg-cyber-card border border-white/5 space-y-1"
+              class="p-5 rounded-lg glass-panel border-l-2 border-purple-500 hover:shadow-[0_0_15px_rgba(124,58,237,0.15)] transition duration-300 flex items-center justify-between"
             >
-              <span class="text-[10px] text-slate-400 block uppercase font-mono"
-                >Total Operators</span
-              >
-              <span class="text-2xl font-extrabold text-white font-mono">{{
-                stats.users
-              }}</span>
+              <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono"
+                  >Total Operators</span
+                >
+                <span class="text-2xl font-extrabold text-white font-mono">{{
+                  stats.users
+                }}</span>
+              </div>
+              <div class="p-2.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+              </div>
             </div>
             <div
-              class="p-5 rounded-lg bg-cyber-card border border-white/5 space-y-1"
+              class="p-5 rounded-lg glass-panel border-l-2 border-cyber-primary hover:shadow-[0_0_15px_rgba(0,255,136,0.15)] transition duration-300 flex items-center justify-between"
             >
-              <span class="text-[10px] text-slate-400 block uppercase font-mono"
-                >Assigned Teams</span
-              >
-              <span
-                class="text-2xl font-extrabold text-cyber-primary font-mono"
-                >{{ stats.teams }}</span
-              >
+              <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono"
+                  >Assigned Teams</span
+                >
+                <span
+                  class="text-2xl font-extrabold text-cyber-primary font-mono"
+                  >{{ stats.teams }}</span
+                >
+              </div>
+              <div class="p-2.5 bg-cyber-primary/10 border border-cyber-primary/20 text-cyber-primary rounded">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
             </div>
             <div
-              class="p-5 rounded-lg bg-cyber-card border border-white/5 space-y-1"
+              class="p-5 rounded-lg glass-panel border-l-2 border-cyber-secondary hover:shadow-[0_0_15px_rgba(0,212,255,0.15)] transition duration-300 flex items-center justify-between"
             >
-              <span class="text-[10px] text-slate-400 block uppercase font-mono"
-                >Active CTFs</span
-              >
-              <span
-                class="text-2xl font-extrabold text-cyber-secondary font-mono"
-                >{{ stats.ctfs }}</span
-              >
+              <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono"
+                  >Active CTFs</span
+                >
+                <span
+                  class="text-2xl font-extrabold text-cyber-secondary font-mono"
+                  >{{ stats.ctfs }}</span
+                >
+              </div>
+              <div class="p-2.5 bg-cyber-secondary/10 border border-cyber-secondary/20 text-cyber-secondary rounded">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                </svg>
+              </div>
             </div>
             <div
-              class="p-5 rounded-lg bg-cyber-card border border-white/5 space-y-1"
+              class="p-5 rounded-lg glass-panel border-l-2 border-cyber-accent hover:shadow-[0_0_15px_rgba(255,0,128,0.15)] transition duration-300 flex items-center justify-between"
             >
-              <span class="text-[10px] text-slate-400 block uppercase font-mono"
-                >Completed Hackathons</span
-              >
-              <span
-                class="text-2xl font-extrabold text-cyber-accent font-mono"
-                >{{ stats.hackathons }}</span
-              >
+              <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono"
+                  >Completed Hackathons</span
+                >
+                <span
+                  class="text-2xl font-extrabold text-cyber-accent font-mono"
+                  >{{ stats.hackathons }}</span
+                >
+              </div>
+              <div class="p-2.5 bg-cyber-accent/10 border border-cyber-accent/20 text-cyber-accent rounded">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
+                </svg>
+              </div>
             </div>
           </div>
 
@@ -2624,7 +2652,7 @@ const logs = ref([]);
 // Line Chart: registrations velocity
 const velocityChartSeries = ref([{ name: "Registrations", data: [] }]);
 const velocityChartOptions = ref({
-  chart: { toolbar: { show: false } },
+  chart: { toolbar: { show: false }, background: "transparent" },
   colors: ["#7C3AED"],
   xaxis: {
     categories: [],
@@ -2632,18 +2660,24 @@ const velocityChartOptions = ref({
   },
   stroke: { curve: "smooth", width: 3 },
   theme: { mode: "dark" },
+  grid: {
+    borderColor: "rgba(255, 255, 255, 0.05)",
+  },
 });
 
 // Bar Chart: challenges by category
 const categoryChartSeries = ref([{ name: "Challenges", data: [] }]);
 const categoryChartOptions = ref({
-  chart: { toolbar: { show: false } },
+  chart: { toolbar: { show: false }, background: "transparent" },
   colors: ["#00D4FF"],
   xaxis: {
     categories: [],
     labels: { style: { colors: "#64748B" } },
   },
   theme: { mode: "dark" },
+  grid: {
+    borderColor: "rgba(255, 255, 255, 0.05)",
+  },
 });
 
 const loadAllData = async () => {
