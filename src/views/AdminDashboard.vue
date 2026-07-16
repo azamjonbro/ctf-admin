@@ -2407,19 +2407,6 @@
           <h3 class="text-sm font-bold text-red-500 uppercase">
             ⚠️ Delete All Data
           </h3>
-
-    <!-- DATABASE DELETE CONFIRMATION MODAL -->
-    <div
-      v-if="showDeleteConfirmModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 overflow-y-auto"
-    >
-      <div
-        class="relative w-full max-w-md bg-[#0B1020] border border-white/10 rounded-lg p-6 space-y-6 glass-panel font-mono text-xs"
-      >
-        <div class="flex justify-between items-center border-b border-white/5 pb-3">
-          <h3 class="text-sm font-bold text-red-500 uppercase">
-            ⚠️ Delete All Data
-          </h3>
           <button
             @click="closeDeleteConfirmModal"
             class="text-slate-400 hover:text-white text-lg font-mono"
