@@ -2045,15 +2045,30 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[11px] font-mono border-b border-white/5 pb-4">
                       <div class="space-y-1">
                         <span class="text-slate-500 uppercase text-[9px]">Average Solve Duration</span>
-                        <span class="block text-slate-200 font-bold">⏱️ {{ q.averageTime || '—' }}</span>
+                        <span class="block text-slate-200 font-bold flex items-center gap-1">
+                          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          {{ q.averageTime || '—' }}
+                        </span>
                       </div>
                       <div class="space-y-1">
                         <span class="text-slate-500 uppercase text-[9px]">First Solver</span>
-                        <span class="block text-emerald-400 font-bold">🥇 {{ q.firstSolver || '—' }}</span>
+                        <span class="block text-emerald-400 font-bold flex items-center gap-1">
+                          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                          </svg>
+                          {{ q.firstSolver || '—' }}
+                        </span>
                       </div>
                       <div class="space-y-1">
                         <span class="text-slate-500 uppercase text-[9px]">Last Solver</span>
-                        <span class="block text-slate-300 font-bold">🏁 {{ q.lastSolver || '—' }}</span>
+                        <span class="block text-slate-300 font-bold flex items-center gap-1">
+                          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                          </svg>
+                          {{ q.lastSolver || '—' }}
+                        </span>
                       </div>
                     </div>
 
