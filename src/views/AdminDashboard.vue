@@ -363,6 +363,66 @@
               </div>
             </div>
           </div>
+
+          <!-- Additional Features: Staff Performance & Live Terminal logs -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Staff Authors Activity Leaderboard -->
+            <div class="p-6 rounded-lg glass-panel border border-white/5 space-y-4">
+              <h3 class="text-sm font-bold font-mono text-white flex items-center gap-1.5 uppercase">
+                <svg class="w-4 h-4 text-cyber-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                // STAFF AUTHORING METRICS
+              </h3>
+              <div v-if="staffPerformance.length > 0" class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs font-mono">
+                  <thead>
+                    <tr class="border-b border-white/5 text-slate-500">
+                      <th class="py-2 px-1">Operator User</th>
+                      <th class="py-2 px-1 text-right">Challenges Authored</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="staff in staffPerformance" :key="staff._id" class="border-b border-white/5 hover:bg-white/5 transition">
+                      <td class="py-2 px-1 text-slate-200 font-bold">@{{ staff.username }}</td>
+                      <td class="py-2 px-1 text-right text-cyber-primary font-bold">{{ staff.challengesCreated }} Tasks</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="py-8 text-center text-xs text-slate-500 font-mono">
+                No staff challenge authors resolved.
+              </div>
+            </div>
+
+            <!-- Live Audit Logs Stream -->
+            <div class="p-6 rounded-lg glass-panel border border-white/5 space-y-4">
+              <h3 class="text-sm font-bold font-mono text-white flex items-center gap-1.5 uppercase">
+                <svg class="w-4 h-4 text-cyber-secondary animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                // LIVE AUDIT FEED
+              </h3>
+              <div v-if="logs.length > 0" class="space-y-2 max-h-[220px] overflow-y-auto pr-1 font-mono text-[10px]">
+                <div 
+                  v-for="log in logs.slice(0, 5)" 
+                  :key="log._id" 
+                  class="p-2 rounded bg-[#0d1527] border-l-2 border-white/10 flex justify-between items-center"
+                  :class="log.status === 'success' ? 'border-l-cyber-primary' : 'border-l-cyber-danger'"
+                >
+                  <div class="truncate mr-2">
+                    <span class="text-slate-500">[{{ new Date(log.createdAt).toLocaleTimeString() }}]</span>
+                    <span class="text-white font-bold ml-1.5">{{ log.action }}</span>
+                    <span class="text-slate-400 ml-1.5">by {{ log.userId?.username || 'System' }}</span>
+                  </div>
+                  <span class="text-slate-500 flex-shrink-0">IP: {{ log.ipAddress }}</span>
+                </div>
+              </div>
+              <div v-else class="py-8 text-center text-xs text-slate-500 font-mono">
+                Monitoring secure operations channel...
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION B: CTF DATABASE -->
