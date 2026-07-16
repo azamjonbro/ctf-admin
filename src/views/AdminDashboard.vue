@@ -423,7 +423,7 @@
                         @change="
                           handleStatusChange(ctf._id, $event.target.value)
                         "
-                        class="bg-[#0B1020] border border-white/15 rounded text-[10px] px-1 py-0.5 focus:outline-none"
+                        class="bg-[#0B1020] border border-white/15 rounded text-[10px] px-1 py-0.5 focus:outline-none luxury-select"
                       >
                         <option value="draft">Draft</option>
                         <option value="active">Active</option>
@@ -546,7 +546,7 @@
                         @change="
                           handleHackathonStatusChange(h, $event.target.value)
                         "
-                        class="bg-[#0B1020] border border-white/15 rounded text-[10px] px-1.5 py-0.5 focus:outline-none font-bold uppercase cursor-pointer"
+                        class="bg-[#0B1020] border border-white/15 rounded text-[10px] px-1.5 py-0.5 focus:outline-none font-bold uppercase cursor-pointer luxury-select"
                         :class="getHackathonStatusClass(h.status)"
                       >
                         <option
@@ -713,7 +713,7 @@
                     >
                     <select
                       v-model="roleForm.action"
-                      class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-cyber-primary"
+                      class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-cyber-primary luxury-select"
                     >
                       <option value="add">Grant / Add Role</option>
                       <option value="remove">Revoke / Remove Role</option>
@@ -1000,7 +1000,7 @@
               >
               <select
                 v-model="form.category"
-                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200 luxury-select"
               >
                 <option value="Web">Web Exploitation</option>
                 <option value="Scripting">Scripting</option>
@@ -1018,7 +1018,7 @@
               >
               <select
                 v-model="form.difficulty"
-                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200 luxury-select"
               >
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
@@ -1031,7 +1031,7 @@
               >
               <select
                 v-model.number="form.stars"
-                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200 luxury-select"
               >
                 <option :value="1">1 Star</option>
                 <option :value="2">2 Stars</option>
@@ -1375,7 +1375,7 @@
                     >
                     <select
                       v-model="q.type"
-                      class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                      class="w-full bg-[#0B1020] border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-cyber-primary text-slate-200 luxury-select"
                     >
                       <option value="text">Text / Input</option>
                       <option value="multiple-choice">Multiple Choice</option>
@@ -1596,7 +1596,7 @@
               >
               <select
                 v-model="hackathonForm.status"
-                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200"
+                class="w-full bg-[#131C35] border border-white/10 rounded px-3 py-2 text-xs focus:outline-none focus:border-cyber-primary text-slate-200 luxury-select"
               >
                 <option value="upcoming">Upcoming</option>
                 <option value="active">Active</option>
