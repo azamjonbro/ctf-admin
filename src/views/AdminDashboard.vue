@@ -2076,6 +2076,338 @@
       </div>
     </div>
 
+    <!-- CHALLENGE ANALYTICS MODAL -->
+    <div
+      v-if="showChallengeAnalyticsModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 overflow-y-auto animate-fade-in"
+    >
+      <div
+        class="relative w-full max-w-4xl bg-[#0B1020] border border-white/10 rounded-lg p-6 my-8 space-y-6 max-h-[90vh] overflow-y-auto glass-panel"
+      >
+        <div
+          class="flex justify-between items-center border-b border-white/5 pb-3"
+        >
+          <div>
+            <h3
+              class="text-lg font-bold font-mono text-cyber-primary uppercase"
+            >
+              // CHALLENGE ANALYTICS MONITOR
+            </h3>
+            <p
+              class="text-[10px] font-mono text-slate-400 mt-1 uppercase"
+              v-if="selectedChallengeAnalytics?.challenge"
+            >
+              Challenge: {{ selectedChallengeAnalytics.challenge.title }} | Category:
+              {{ selectedChallengeAnalytics.challenge.category }} | Difficulty:
+              <span class="font-bold text-cyber-secondary">{{ selectedChallengeAnalytics.challenge.difficulty.toUpperCase() }}</span>
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              @click="refreshChallengeAnalytics"
+              class="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono rounded text-slate-300 transition uppercase"
+            >
+              🔄 Refresh
+            </button>
+            <button
+              @click="showChallengeAnalyticsModal = false"
+              class="text-slate-400 hover:text-white text-lg font-mono"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        <div v-if="selectedChallengeAnalytics" class="space-y-6 font-mono text-xs">
+          <!-- Overview Metrics Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-4 bg-[#131C35]/30 border border-white/5 rounded-lg space-y-1">
+              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">// Total Questions</span>
+              <span class="block text-xl font-extrabold text-cyber-primary font-mono">{{ selectedChallengeAnalytics.questions?.length || 0 }}</span>
+            </div>
+            <div class="p-4 bg-[#131C35]/30 border border-white/5 rounded-lg space-y-1">
+              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">// Individual Solves</span>
+              <span class="block text-xl font-extrabold text-cyber-secondary font-mono">{{ selectedChallengeAnalytics.userStats?.length || 0 }} Users</span>
+            </div>
+            <div class="p-4 bg-[#131C35]/30 border border-white/5 rounded-lg space-y-1">
+              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">// Team Solves</span>
+              <span class="block text-xl font-extrabold text-cyber-accent font-mono">{{ selectedChallengeAnalytics.teamStats?.length || 0 }} Teams</span>
+            </div>
+          </div>
+
+          <!-- Tabs Navigation -->
+          <div class="flex gap-4 border-b border-white/10 pb-1">
+            <button
+              @click="activeChallengeTab = 'questions'"
+              :class="[
+                'px-4 py-2 text-xs font-mono font-bold tracking-wider uppercase border-b-2 transition duration-200',
+                activeChallengeTab === 'questions'
+                  ? 'text-cyber-primary border-cyber-primary'
+                  : 'text-slate-400 border-transparent hover:text-white'
+              ]"
+            >
+              📝 Question Stats
+            </button>
+            <button
+              @click="activeChallengeTab = 'participants'"
+              :class="[
+                'px-4 py-2 text-xs font-mono font-bold tracking-wider uppercase border-b-2 transition duration-200',
+                activeChallengeTab === 'participants'
+                  ? 'text-cyber-primary border-cyber-primary'
+                  : 'text-slate-400 border-transparent hover:text-white'
+              ]"
+            >
+              👥 Participant Logs
+            </button>
+          </div>
+
+          <!-- Tab 1: Question Breakdown Accordion -->
+          <div v-if="activeChallengeTab === 'questions'" class="space-y-3">
+            <h4 class="text-xs uppercase font-bold text-cyber-secondary tracking-widest">// Question Breakdowns</h4>
+            
+            <div class="text-center py-8 border border-white/5 rounded bg-[#131C35]/30 text-slate-500" v-if="!selectedChallengeAnalytics.questions || selectedChallengeAnalytics.questions.length === 0">
+              No questions found in this challenge.
+            </div>
+
+            <div v-else class="space-y-3">
+              <div
+                v-for="q in selectedChallengeAnalytics.questions"
+                :key="q._id"
+                class="border border-white/10 rounded-lg overflow-hidden bg-[#131C35]/20 hover:border-white/20 transition"
+              >
+                <!-- Accordion Header -->
+                <div
+                  @click="toggleChallengeQuestion(q._id)"
+                  class="flex flex-col md:flex-row md:items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition gap-4"
+                >
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-cyber-primary font-bold text-xs">{{ q.title }}</span>
+                      <span class="text-[9px] uppercase font-bold px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-slate-400">{{ q.points }} Pts</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-mono">
+                      Answer: <span class="text-emerald-400 font-bold font-mono">{{ q.correctAnswer || '—' }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Brief stats -->
+                  <div class="flex items-center gap-4 text-slate-300 font-mono text-[11px] select-none">
+                    <div>
+                      <span class="text-slate-500 uppercase text-[9px] block">Solved</span>
+                      <span class="font-bold text-emerald-400">✅ {{ q.stats?.totalSolvedCount || 0 }}</span>
+                    </div>
+                    <div>
+                      <span class="text-rose-400 uppercase text-[9px] block">Failed Attempts</span>
+                      <span class="font-bold text-rose-400">❌ {{ q.stats?.totalFailedAttemptsSum || 0 }}</span>
+                    </div>
+                    <div>
+                      <span class="text-cyber-accent uppercase text-[9px] block">Total Attempts</span>
+                      <span class="font-bold text-cyber-accent">{{ (q.stats?.totalFailedAttemptsSum || 0) + (q.stats?.totalSolvedCount || 0) }}</span>
+                    </div>
+                    <div class="text-slate-400 text-sm ml-2">
+                      {{ expandedChallengeQuestions[q._id] ? '▲' : '▼' }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Collapsible Content -->
+                <div
+                  v-if="expandedChallengeQuestions[q._id]"
+                  class="border-t border-white/5 bg-[#0B1020]/50 p-4 space-y-4"
+                >
+                  <div class="space-y-2">
+                    <span class="text-slate-400 uppercase text-[10px] font-bold tracking-wider block">// User / Team Solves Breakdown</span>
+                    <div class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/10">
+                      <table class="w-full text-left border-collapse text-[10px]">
+                        <thead>
+                          <tr class="border-b border-white/10 text-slate-400 bg-white/5">
+                            <th class="py-2 px-3">Participant</th>
+                            <th class="py-2 px-3">Type</th>
+                            <th class="py-2 px-3 text-center">Failed Attempts</th>
+                            <th class="py-2 px-3">Status</th>
+                            <th class="py-2 px-3 text-right">Solved At</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                          <!-- Individual users details -->
+                          <tr
+                            v-for="u in getQuestionParticipantStats(q._id)"
+                            :key="u.id"
+                            class="hover:bg-white/5 transition"
+                          >
+                            <td class="py-2 px-3 font-bold text-white">
+                              {{ u.name }}
+                              <span class="text-slate-500 font-normal text-[9px]" v-if="u.subtext">({{ u.subtext }})</span>
+                            </td>
+                            <td class="py-2 px-3 text-slate-400 uppercase text-[9px] font-bold">{{ u.type }}</td>
+                            <td class="py-2 px-3 text-center text-slate-300 font-bold">{{ u.failedAttempts }}</td>
+                            <td class="py-2 px-3">
+                              <span
+                                v-if="u.solved"
+                                class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-[9px] uppercase"
+                              >
+                                SOLVED
+                              </span>
+                              <span
+                                v-else
+                                class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold text-[9px] uppercase"
+                              >
+                                ATTEMPTING
+                              </span>
+                            </td>
+                            <td class="py-2 px-3 text-right text-slate-400">
+                              {{ u.solvedAt ? new Date(u.solvedAt).toLocaleString() : '—' }}
+                            </td>
+                          </tr>
+                          <tr v-if="getQuestionParticipantStats(q._id).length === 0">
+                            <td colspan="5" class="text-center py-3 text-slate-500">
+                              No participants have attempted this question yet.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Participants Logs -->
+          <div v-else-if="activeChallengeTab === 'participants'" class="space-y-6">
+            <!-- Individual Users -->
+            <div class="space-y-2">
+              <h4 class="text-xs uppercase font-bold text-cyber-secondary tracking-widest">// Individual Players</h4>
+              <div class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30">
+                <table class="w-full text-left border-collapse text-[11px]">
+                  <thead>
+                    <tr class="border-b border-white/10 text-slate-400 bg-white/5">
+                      <th class="py-2.5 px-4">Player</th>
+                      <th class="py-2.5 px-4">Full Name</th>
+                      <th class="py-2.5 px-4">Session Status</th>
+                      <th class="py-2.5 px-4">Solved Questions</th>
+                      <th class="py-2.5 px-4">Failed Attempts</th>
+                      <th class="py-2.5 px-4">Last Activity</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/5">
+                    <tr
+                      v-for="user in selectedChallengeAnalytics.userStats"
+                      :key="user.userId"
+                      class="hover:bg-white/5 transition"
+                    >
+                      <td class="py-2.5 px-4 font-bold text-white">@{{ user.username }}</td>
+                      <td class="py-2.5 px-4 text-slate-300">{{ user.fullName }}</td>
+                      <td class="py-2.5 px-4">
+                        <span
+                          class="px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+                          :class="{
+                            'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20': user.status === 'completed',
+                            'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20': user.status === 'active',
+                            'bg-red-500/10 text-red-500 border border-red-500/20': user.status === 'expired'
+                          }"
+                        >
+                          {{ user.status }}
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-4 font-bold text-cyber-primary">
+                        {{ user.questionsDetail.filter(q => q.solved).length }} / {{ user.questionsDetail.length }}
+                      </td>
+                      <td class="py-2.5 px-4 text-rose-400 font-bold">{{ user.failedAttempts }}</td>
+                      <td class="py-2.5 px-4 text-slate-500">{{ new Date(user.openedAt).toLocaleString() }}</td>
+                    </tr>
+                    <tr v-if="!selectedChallengeAnalytics.userStats || selectedChallengeAnalytics.userStats.length === 0">
+                      <td colspan="6" class="text-center py-4 text-slate-500">
+                        No individual player sessions found.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Teams -->
+            <div class="space-y-2">
+              <h4 class="text-xs uppercase font-bold text-cyber-secondary tracking-widest">// Teams (Hackathons Arena)</h4>
+              <div class="overflow-x-auto border border-white/5 rounded bg-[#131C35]/30">
+                <table class="w-full text-left border-collapse text-[11px]">
+                  <thead>
+                    <tr class="border-b border-white/10 text-slate-400 bg-white/5">
+                      <th class="py-2.5 px-4">Team Name</th>
+                      <th class="py-2.5 px-4">Session Status</th>
+                      <th class="py-2.5 px-4">Solved Questions</th>
+                      <th class="py-2.5 px-4">Failed Attempts</th>
+                      <th class="py-2.5 px-4">Last Activity</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/5">
+                    <tr
+                      v-for="team in selectedChallengeAnalytics.teamStats"
+                      :key="team.teamId"
+                      class="hover:bg-white/5 transition"
+                    >
+                      <td class="py-2.5 px-4 font-bold text-cyber-secondary">{{ team.teamName }}</td>
+                      <td class="py-2.5 px-4">
+                        <span
+                          class="px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+                          :class="{
+                            'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20': team.status === 'completed',
+                            'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20': team.status === 'active',
+                            'bg-red-500/10 text-red-500 border border-red-500/20': team.status === 'expired'
+                          }"
+                        >
+                          {{ team.status }}
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-4 font-bold text-cyber-primary">
+                        {{ team.questionsDetail.filter(q => q.solved).length }} / {{ team.questionsDetail.length }}
+                      </td>
+                      <td class="py-2.5 px-4 text-rose-400 font-bold">{{ team.failedAttempts }}</td>
+                      <td class="py-2.5 px-4 text-slate-500">{{ new Date(team.openedAt).toLocaleString() }}</td>
+                    </tr>
+                    <tr v-if="!selectedChallengeAnalytics.teamStats || selectedChallengeAnalytics.teamStats.length === 0">
+                      <td colspan="5" class="text-center py-4 text-slate-500">
+                        No team sessions found for this challenge.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-else
+          class="py-12 flex justify-center items-center text-slate-400 font-mono text-xs"
+        >
+          🔄 Connecting to server and downloading analytics...
+        </div>
+
+        <div class="flex justify-end border-t border-white/10 pt-4">
+          <button
+            @click="showChallengeAnalyticsModal = false"
+            class="px-4 py-2 bg-white/5 text-slate-300 font-mono text-xs rounded hover:bg-white/10"
+          >
+            CLOSE ANALYTICS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATABASE DELETE CONFIRMATION MODAL -->
+    <div
+      v-if="showDeleteConfirmModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 overflow-y-auto"
+    >
+      <div
+        class="relative w-full max-w-md bg-[#0B1020] border border-white/10 rounded-lg p-6 space-y-6 glass-panel font-mono text-xs"
+      >
+        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+          <h3 class="text-sm font-bold text-red-500 uppercase">
+            ⚠️ Delete All Data
+          </h3>
+
     <!-- DATABASE DELETE CONFIRMATION MODAL -->
     <div
       v-if="showDeleteConfirmModal"
