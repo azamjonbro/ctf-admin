@@ -2645,6 +2645,7 @@ const handleLogout = () => {
 
 // 2. DASHBOARD DATA STATES
 const stats = ref({ users: 0, teams: 0, ctfs: 0, hackathons: 0 });
+const staffPerformance = ref([]);
 const challenges = ref([]);
 const hackathons = ref([]);
 const logs = ref([]);
@@ -2698,7 +2699,8 @@ const loadAllData = async () => {
 const loadStats = async () => {
   try {
     const res = await api.get("/admin/stats");
-    const { counts, registrationVelocity, categoryStats } = res.data.data;
+    const { counts, registrationVelocity, categoryStats, staffPerformance: staffData } = res.data.data;
+    staffPerformance.value = staffData || [];
 
     stats.value = {
       users: counts.users || 0,
