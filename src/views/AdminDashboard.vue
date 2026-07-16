@@ -2473,8 +2473,11 @@
         class="relative w-full max-w-md bg-[#0B1020] border border-white/10 rounded-lg p-6 space-y-6 glass-panel font-mono text-xs"
       >
         <div class="flex justify-between items-center border-b border-white/5 pb-3">
-          <h3 class="text-sm font-bold text-red-500 uppercase">
-            ⚠️ Delete All Data
+          <h3 class="text-sm font-bold text-red-500 uppercase flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            Delete All Data
           </h3>
           <button
             @click="closeDeleteConfirmModal"
