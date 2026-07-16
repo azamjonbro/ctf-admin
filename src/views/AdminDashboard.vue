@@ -800,6 +800,63 @@
             </div>
           </div>
 
+          <!-- Database Management Section (Super Admin Only) -->
+          <div
+            v-if="adminUser?.username === 'superadmin'"
+            class="p-6 rounded-lg glass-panel border border-white/5 space-y-4"
+          >
+            <h3
+              class="text-sm font-bold font-mono text-white border-b border-white/5 pb-2 uppercase"
+            >
+              // Database Management Console
+            </h3>
+            <p class="text-xs text-slate-400">
+              Perform administrative operations to clear the system's databases. Permanent deletion mechanism.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs mt-4">
+              <!-- Users Card -->
+              <div class="p-4 rounded bg-[#131C35] border border-white/5 space-y-4 flex flex-col justify-between">
+                <div>
+                  <span class="text-[10px] text-slate-500 uppercase block font-bold tracking-wider">Collection Name</span>
+                  <span class="text-sm font-bold text-white block mt-1">Users</span>
+                  
+                  <div class="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+                    <span class="text-[10px] text-slate-500 uppercase block">Total Records</span>
+                    <span v-if="dbCountsLoading" class="text-slate-400 animate-pulse">Loading...</span>
+                    <span v-else class="font-bold text-cyber-accent text-sm">{{ dbCounts.users }}</span>
+                  </div>
+                </div>
+                <button
+                  @click="confirmDeleteCollection('users')"
+                  class="w-full py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-bold rounded transition flex items-center justify-center gap-1.5"
+                >
+                  🗑 Delete All Users
+                </button>
+              </div>
+
+              <!-- Questions Card -->
+              <div class="p-4 rounded bg-[#131C35] border border-white/5 space-y-4 flex flex-col justify-between">
+                <div>
+                  <span class="text-[10px] text-slate-500 uppercase block font-bold tracking-wider">Collection Name</span>
+                  <span class="text-sm font-bold text-white block mt-1">Questions</span>
+                  
+                  <div class="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+                    <span class="text-[10px] text-slate-500 uppercase block">Total Records</span>
+                    <span v-if="dbCountsLoading" class="text-slate-400 animate-pulse">Loading...</span>
+                    <span v-else class="font-bold text-cyber-accent text-sm">{{ dbCounts.questions }}</span>
+                  </div>
+                </div>
+                <button
+                  @click="confirmDeleteCollection('questions')"
+                  class="w-full py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-bold rounded transition flex items-center justify-center gap-1.5"
+                >
+                  🗑 Delete All Questions
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Environment Variables Visualizer -->
           <div
             class="p-6 rounded-lg glass-panel border border-white/5 space-y-4"
@@ -1998,6 +2055,53 @@
         </div>
       </div>
     </div>
+
+    <!-- DATABASE DELETE CONFIRMATION MODAL -->
+    <div
+      v-if="showDeleteConfirmModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 overflow-y-auto"
+    >
+      <div
+        class="relative w-full max-w-md bg-[#0B1020] border border-white/10 rounded-lg p-6 space-y-6 glass-panel font-mono text-xs"
+      >
+        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+          <h3 class="text-sm font-bold text-red-500 uppercase">
+            ⚠️ Delete All Data
+          </h3>
+          <button
+            @click="closeDeleteConfirmModal"
+            class="text-slate-400 hover:text-white text-lg font-mono"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <p class="text-slate-300">
+            Are you sure you want to permanently delete all data from this collection? This action cannot be undone.
+          </p>
+          <div class="p-3 bg-red-500/10 border border-red-500/20 rounded text-[11px] text-red-400">
+            Target Collection: <span class="font-bold text-white uppercase">{{ targetCollectionName }}</span>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            @click="closeDeleteConfirmModal"
+            class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold rounded text-slate-300 transition uppercase"
+          >
+            Cancel
+          </button>
+          <button
+            @click="executeDeleteCollection"
+            :disabled="deleteLoading"
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-[#0B1020] hover:text-white text-xs font-bold rounded transition uppercase shadow-neon-danger disabled:opacity-50"
+          >
+            {{ deleteLoading ? "DELETING..." : "Delete Permanently" }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -2124,6 +2228,7 @@ const loadAllData = async () => {
       loadChallenges(),
       loadHackathons(),
       loadAuditLogs(),
+      loadDbCounts(),
     ]);
   } catch (error) {
     console.error("Failed to load initial metrics", error);
@@ -2842,6 +2947,61 @@ const adjustRateLimit = (delta) => {
     Math.min(200, simulatedSettings.value.rateLimit + delta),
   );
   localStorage.setItem("cfg_rate_limit", simulatedSettings.value.rateLimit);
+};
+
+// Database Management Operations (Super Admin only)
+const dbCounts = ref({ users: 0, questions: 0 });
+const dbCountsLoading = ref(false);
+const showDeleteConfirmModal = ref(false);
+const targetCollectionName = ref("");
+const deleteLoading = ref(false);
+
+const loadDbCounts = async () => {
+  if (adminUser.value?.username !== 'superadmin') return;
+  dbCountsLoading.value = true;
+  try {
+    const res = await api.get("/admin/db/counts");
+    dbCounts.value = res.data.data;
+  } catch (error) {
+    console.error("Failed to load database counts", error);
+  } finally {
+    dbCountsLoading.value = false;
+  }
+};
+
+const confirmDeleteCollection = (collectionName) => {
+  targetCollectionName.value = collectionName;
+  showDeleteConfirmModal.value = true;
+};
+
+const closeDeleteConfirmModal = () => {
+  showDeleteConfirmModal.value = false;
+  targetCollectionName.value = "";
+};
+
+const executeDeleteCollection = async () => {
+  if (!targetCollectionName.value) return;
+  deleteLoading.value = true;
+  try {
+    const res = await api.post("/admin/db/delete", {
+      collectionName: targetCollectionName.value,
+    });
+    toast.success(res.data.message || "Data successfully deleted.");
+    // Automatically update collection count to 0 without page refresh
+    if (targetCollectionName.value === "users") {
+      dbCounts.value.users = 0;
+    } else if (targetCollectionName.value === "questions") {
+      dbCounts.value.questions = 0;
+    }
+    closeDeleteConfirmModal();
+    // Refresh other statistics
+    loadStats();
+    loadAuditLogs();
+  } catch (error) {
+    toast.error(error?.response?.data?.error?.message || error?.error?.message || "Failed to delete collection data.");
+  } finally {
+    deleteLoading.value = false;
+  }
 };
 
 onMounted(() => {
